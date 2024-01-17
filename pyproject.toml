@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "Alfa-Bank PDP"
+version = "0.1.0"
+description = "Alfa-Bank PDP"
+authors = ["Team 1"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.100.0"
+pydantic = "^2.1.1"
+python-dotenv = "^1.0.0"
+httpx = "^0.24.1"
+gunicorn = "^21.2.0"
+pyjwt = { extras = ["crypto"], version = "^2.8.0" }
+orjson = "^3.9.2"
+uvicorn = "^0.23.1"
+redis = "^4.6.0"
+pydantic-settings = "^2.0.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.9"
+mypy = "^1.8.0"
+pre-commit = "^3.6.0"
+types-redis = "^4.6.0.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+preview = true
+select = [
+    "E", # pycodestyle error
+    "W", # pycodestyle warning
+    "F", # pyflakes
+    "I", # isort
+    "N", # pep8-naming
+] # all rules here https://docs.astral.sh/ruff/rules/#pep8-naming-n
+fixable = ["F401", "E501"]
+ignore = ["E203", "F401"]
+
+[tool.ruff.lint.isort]
+lines-after-imports = -1
+known-first-party = ["app"]
+
+[tool.mypy]
+ignore_missing_imports = true
+disallow_untyped_defs = true
+explicit_package_bases = true

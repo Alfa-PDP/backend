@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+
+  alfa-bank-pdp-backend-nginx:
+    build:
+      context: ../
+      dockerfile: infra/nginx/Dockerfile
+    container_name: alfa-bank-pdp-backend-nginx
+    ports:
+      - ${FRONTEND_PORT:-80}:80
+    restart: unless-stopped
+    networks:
+      - alfa-bank-pdp-backend-network
+    depends_on:
+      - alfa-bank-pdp-backend-api
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:rw
+      - ./nginx/configs:/etc/nginx/conf.d:rw
+
+  alfa-bank-pdp-backend-api:
+    build:
+      context: ../
+      dockerfile: infra/backend/Dockerfile
+    container_name: alfa-bank-pdp-backend-api
+    command: poetry run uvicorn --factory app.main:main --host 0.0.0.0 --port ${BACKEND_PORT:-8080} --reload
+    # command: poetry run gunicorn -c gunicorn.conf.py --factory app:main
+    ports:
+      - ${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}
+    restart: unless-stopped
+    networks:
+      - alfa-bank-pdp-backend-network
+    depends_on:
+      alfa-bank-pdp-backend-redis:
+        condition: service_healthy
+    volumes:
+      - ../src/app:/opt/app
+    env_file:
+      - ../src/.env
+
+  alfa-bank-pdp-backend-redis:
+    image: redis:7.0.8-alpine
+    container_name: alfa-bank-pdp-backend-redis
+    ports:
+      - ${REDIS_PORT:-6379}:6379
+    restart: unless-stopped
+    networks:
+      - alfa-bank-pdp-backend-network
+    healthcheck:
+      test: redis-cli ping >/dev/null || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  alfa-bank-pdp-backend-network:
+    name: alfa-bank-pdp-backend-network
+    external: true
