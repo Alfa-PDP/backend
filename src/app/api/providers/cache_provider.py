@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
+from app.api.providers.mixins import ShutDownProviderMixin, StartUpProviderMixin
 from app.core.errors import ApplicationError
-from app.providers.mixins import ShutDownProviderMixin, StartUpProviderMixin
 
 
 class RedisProvider(StartUpProviderMixin, ShutDownProviderMixin):

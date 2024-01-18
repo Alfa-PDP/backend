@@ -18,25 +18,30 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:rw
       - ./nginx/configs:/etc/nginx/conf.d:rw
 
-  alfa-bank-pdp-backend-api:
-    build:
-      context: ../
-      dockerfile: infra/backend/Dockerfile
-    container_name: alfa-bank-pdp-backend-api
-    command: poetry run uvicorn --factory app.main:main --host 0.0.0.0 --port ${BACKEND_PORT:-8080} --reload
-    # command: poetry run gunicorn -c gunicorn.conf.py --factory app:main
+  alfa-bank-pdp-backend-db:
+    image: postgres:14
+    container_name: alfa-bank-pdp-backend-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - ${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}
-    restart: unless-stopped
+      - ${POSTGRES_PORT:-5432}:5432
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - alfa-bank-pdp-backend-network
-    depends_on:
-      alfa-bank-pdp-backend-redis:
-        condition: service_healthy
-    volumes:
-      - ../src/app:/opt/app
     env_file:
       - ../src/.env
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
   alfa-bank-pdp-backend-redis:
     image: redis:7.0.8-alpine
@@ -52,7 +57,50 @@ services:
       timeout: 5s
       retries: 5
 
+  alfa-bank-pdp-backend-api:
+    build:
+      context: ../
+      dockerfile: infra/backend/Dockerfile
+    container_name: alfa-bank-pdp-backend-api
+    command: poetry run uvicorn --factory app.main:main --host 0.0.0.0 --port ${BACKEND_PORT:-8080} --reload
+    # command: poetry run gunicorn -c gunicorn.conf.py --factory app:main
+    ports:
+      - ${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}
+    restart: unless-stopped
+    networks:
+      - alfa-bank-pdp-backend-network
+    depends_on:
+      alfa-bank-pdp-backend-redis:
+        condition: service_healthy
+      alfa-bank-pdp-backend-db:
+        condition: service_healthy
+    volumes:
+      - ../src/app:/opt/app
+      - ../src/database:/opt/database
+    env_file:
+      - ../src/.env
+
+  alfa-bank-pdp-backend-migration:
+    container_name: alfa-bank-pdp-backend-migration
+    build:
+      context: ../
+      dockerfile: infra/backend/Dockerfile
+    networks:
+      - alfa-bank-pdp-backend-network
+    depends_on:
+      alfa-bank-pdp-backend-db:
+        condition: service_healthy
+    volumes:
+      - ../src/app:/opt/app
+      - ../src/database:/opt/database
+    env_file:
+      - ../src/.env
+    command: poetry run alembic upgrade head
+
 networks:
   alfa-bank-pdp-backend-network:
     name: alfa-bank-pdp-backend-network
     external: true
+
+volumes:
+  db_data:

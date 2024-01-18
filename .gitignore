@@ -134,6 +134,5 @@ etl/*.json
 /etl/stage/
 movies_admin/static
 
-.env.local
 .vscode
 .ruff_cache

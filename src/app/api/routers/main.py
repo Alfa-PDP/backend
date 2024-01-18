@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI
 
-from app.api.v1 import v1_router
+from app.api.routers.v1 import v1_router
 from app.core.config import MainConfig
 
 
