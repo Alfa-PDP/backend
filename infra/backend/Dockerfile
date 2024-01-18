@@ -3,9 +3,6 @@ FROM python:3.11-slim
 # Основной путь приложения
 ENV SRC_DIR=/opt
 
-# Путь до приложения fastapi
-ENV APP_DIR=$SRC_DIR/app
-
 ENV APP_USER=backend-user
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -33,8 +30,10 @@ RUN poetry install --no-root --only main
 
 
 # Копирования кода приложения
-COPY ./src/app $APP_DIR
-COPY ./src/gunicorn.conf.py $APP_DIR
+COPY ./src/app $SRC_DIR/app
+COPY ./src/database $SRC_DIR/database
+COPY ./src/alembic.ini alembic.ini
+COPY ./src/gunicorn.conf.py gunicorn.conf.py
 
 EXPOSE 8000
 

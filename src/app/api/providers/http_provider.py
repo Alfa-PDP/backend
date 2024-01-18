@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import FastAPI
 from httpx import AsyncClient
 
-from app.providers.mixins import StartUpProviderMixin
+from app.api.providers.mixins import StartUpProviderMixin
 
 
 class HTTPXClientProvider(StartUpProviderMixin):

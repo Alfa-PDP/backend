@@ -18,6 +18,9 @@ orjson = "^3.9.2"
 uvicorn = "^0.23.1"
 redis = "^4.6.0"
 pydantic-settings = "^2.0.2"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.25" }
+alembic = "^1.13.1"
+asyncpg = "^0.29.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -33,6 +36,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 120
+extend-exclude = [
+    "src/database/migrations/*.py",
+    "src/database/migrations/versions/*.py",
+]
+force-exclude = true
 
 [tool.ruff.lint]
 preview = true
@@ -48,9 +56,13 @@ ignore = ["E203", "F401"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = -1
-known-first-party = ["app"]
+known-first-party = ["app", "database"]
 
 [tool.mypy]
 ignore_missing_imports = true
 disallow_untyped_defs = true
 explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["src.database.migrations.*"]
+ignore_errors = true
