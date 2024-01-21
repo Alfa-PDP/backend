@@ -19,7 +19,7 @@ class Team(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
         comment="Порядковый номер сотрудника в списке команды, который назначен руководителем команды",
     )
 
-    members: Mapped["User"] = relationship(back_populates="team")
+    members: Mapped[list["User"]] = relationship(back_populates="team")
 
     def __repr__(self) -> str:
         return f"Team({self.id}, {self.name}, {self.leader})"
