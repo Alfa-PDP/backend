@@ -52,7 +52,7 @@ select = [
     "N", # pep8-naming
 ] # all rules here https://docs.astral.sh/ruff/rules/#pep8-naming-n
 fixable = ["F401", "E501"]
-ignore = ["E203", "F401"]
+ignore = ["E203", "F401", "I001"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = -1
