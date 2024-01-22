@@ -13,13 +13,13 @@ if TYPE_CHECKING:
 class Team(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
     __tablename__ = "teams"
 
-    name: Mapped[str] = Column(String(100), nullable=False, comment="Наименование команды")
+    team_name: Mapped[str] = Column(String(100), nullable=False, comment="Наименование команды")
     leader: Mapped[UUID] = Column(
-        ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"),
-        comment="Порядковый номер сотрудника в списке команды, который назначен руководителем команды",
+        ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT", name="teams_leader_fkey"),
+        comment="Руководитель команды",
     )
 
     members: Mapped[list["User"]] = relationship(back_populates="team")
 
     def __repr__(self) -> str:
-        return f"Team({self.id}, {self.name}, {self.leader})"
+        return f"Team({self.id}, {self.team_name}, {self.leader})"

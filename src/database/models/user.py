@@ -13,18 +13,13 @@ if TYPE_CHECKING:
 class User(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
     __tablename__ = "users"
 
-    name: Mapped[str] = Column(String(50), nullable=False, comment="Имя сотрудника")
-    family_name: Mapped[str] = Column(String(50), nullable=False, comment="Фамилия сотрудника")
-    surname: Mapped[str] = Column(
-        String(50),
-        nullable=False,
-        comment="Наименование должности / специальности в команде",
-    )
-    position: Mapped[str] = Column(String(100), nullable=False, comment="Должность сотрудника")
-    role: Mapped[str] = Column(String(50), nullable=False, comment="Роль сотрудника")
+    name: Mapped[str] = Column(String(50), nullable=False, comment="Имя пользователя")
+    family_name: Mapped[str] = Column(String(50), nullable=False, comment="Фамилия пользователя")
+    middle_name: Mapped[str] = Column(String(50), nullable=False, comment="Отчество пользователя")
+    position: Mapped[str] = Column(String(100), nullable=False, comment="Должность пользователя")
+    role: Mapped[str] = Column(String(50), nullable=False, comment="Роль пользователя")
     team_id: Mapped[UUID] = Column(
-        ForeignKey("teams.id", ondelete="RESTRICT", onupdate="RESTRICT"),
-        comment="Порядковый номер в списке команды",
+        ForeignKey("teams.id", ondelete="RESTRICT", onupdate="RESTRICT", name="users_team_id_fkey")
     )
 
     team: Mapped["Team"] = relationship(back_populates="members")
