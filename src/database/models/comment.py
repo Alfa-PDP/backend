@@ -21,9 +21,7 @@ class Comment(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
         ForeignKey("task.id", name="task_comment", ondelete="RESTRICT", onupdate="RESTRICT"),
         comment="Комментарий задачи",
     )
-    text: Mapped[str] = Column(String(1000), nullable=False, comment="Комментарий задачи")
-
-    list_of_comments: Mapped["Task"] = relationship(back_populates="comments")
+    text: Mapped[str] = Column(String(1000), nullable=False, comment="Текст комментария")
 
     def __repr__(self) -> str:
         return f"Comment({self.user_id}, {self.task_id}, {self.text})"

@@ -25,4 +25,4 @@ class TaskNumber(BaseModel):
     tasks: Mapped[list["Task"]] = relationship(back_populates="list_of_tasks")
 
     def __repr__(self) -> str:
-        return f"TaskNumber({self.id}, {self.idp_id}, {self.task_id})"
+        return f"TaskNumber({self.idp_id}, {self.task_id})"
