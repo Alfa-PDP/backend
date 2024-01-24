@@ -23,8 +23,5 @@ class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
     status_description: Mapped[str] = Column(String(20), nullable=False, comment="Статус выполнения задачи")
     importance: Mapped[str] = Column(String(10), nullable=False, comment="Значимость задачи")
 
-    comments: Mapped[list["Comment"]] = relationship(back_populates="list_of_comments")
-    list_of_tasks: Mapped["TaskNumber"] = relationship(back_populates="tasks")
-
     def __repr__(self) -> str:
         return f"Task({self.id}, {self.task_name})"
