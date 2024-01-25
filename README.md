@@ -25,3 +25,9 @@
 2. alembic revision --autogenerate -m "your comment"
 3. Проверьте созданные миграции в папке `src/database/migrations/versions` 
 4. alembic upgrade head
+
+## Тестирование
+
+`make run-tests` - запуск тестов
+
+Чтобы добавить библиотеку для тестирования используйте флаг -G test для poetry (`poetry add pytest-asyncio -G tests`)
