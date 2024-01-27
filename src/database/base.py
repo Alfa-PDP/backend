@@ -1,3 +1,3 @@
-from database.models.declarative_base import BaseModel
-from database.models.team import Team
-from database.models.user import User
+from database.models.declarative_base import BaseModel  # noqa
+from database.models.team import Team  # noqa
+from database.models.user import User  # noqa

@@ -15,7 +15,7 @@ class Team(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
 
     name: Mapped[str] = Column(String(100), nullable=False, comment="Наименование команды")
     leader: Mapped[UUID] = Column(
-        ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT"),
+        ForeignKey("users.id", ondelete="RESTRICT", onupdate="RESTRICT", name="teams_user_id_fkey"),
         comment="Порядковый номер сотрудника в списке команды, который назначен руководителем команды",
     )
 

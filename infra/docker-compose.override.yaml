@@ -7,16 +7,11 @@ services:
       context: ../
       dockerfile: infra/nginx/Dockerfile
     container_name: alfa-bank-pdp-backend-nginx
-    ports:
-      - ${FRONTEND_PORT:-80}:80
     restart: unless-stopped
     networks:
       - alfa-bank-pdp-backend-network
     depends_on:
       - alfa-bank-pdp-backend-api
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:rw
-      - ./nginx/configs:/etc/nginx/conf.d:rw
 
   alfa-bank-pdp-backend-db:
     image: postgres:14
@@ -25,8 +20,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - ${POSTGRES_PORT:-5432}:5432
     healthcheck:
       test:
         [
@@ -46,8 +39,6 @@ services:
   alfa-bank-pdp-backend-redis:
     image: redis:7.0.8-alpine
     container_name: alfa-bank-pdp-backend-redis
-    ports:
-      - ${REDIS_PORT:-6379}:6379
     restart: unless-stopped
     networks:
       - alfa-bank-pdp-backend-network
@@ -61,11 +52,9 @@ services:
     build:
       context: ../
       dockerfile: infra/backend/Dockerfile
+      target: main
     container_name: alfa-bank-pdp-backend-api
-    command: poetry run uvicorn --factory app.main:main --host 0.0.0.0 --port ${BACKEND_PORT:-8080} --reload
     # command: poetry run gunicorn -c gunicorn.conf.py --factory app:main
-    ports:
-      - ${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}
     restart: unless-stopped
     networks:
       - alfa-bank-pdp-backend-network
@@ -74,11 +63,6 @@ services:
         condition: service_healthy
       alfa-bank-pdp-backend-db:
         condition: service_healthy
-    volumes:
-      - ../src/app:/opt/app
-      - ../src/database:/opt/database
-    env_file:
-      - ../src/.env
 
   alfa-bank-pdp-backend-migration:
     container_name: alfa-bank-pdp-backend-migration
@@ -90,11 +74,6 @@ services:
     depends_on:
       alfa-bank-pdp-backend-db:
         condition: service_healthy
-    volumes:
-      - ../src/app:/opt/app
-      - ../src/database:/opt/database
-    env_file:
-      - ../src/.env
     command: poetry run alembic upgrade head
 
 networks:

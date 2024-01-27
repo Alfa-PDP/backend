@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from pydantic import Field
@@ -21,5 +20,4 @@ class PostgresqlConfig(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        """Получить ссылку для подключения к DB."""
-        return f"postgresql+asyncpg://" f"{self.user}:{self.password}" f"@{self.host}:{self.port}/{self.db}"
+        return f"postgresql+psycopg://" f"{self.user}:{self.password}" f"@{self.host}:{self.port}/{self.db}"

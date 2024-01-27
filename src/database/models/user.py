@@ -23,7 +23,7 @@ class User(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
     position: Mapped[str] = Column(String(100), nullable=False, comment="Должность сотрудника")
     role: Mapped[str] = Column(String(50), nullable=False, comment="Роль сотрудника")
     team_id: Mapped[UUID] = Column(
-        ForeignKey("teams.id", ondelete="RESTRICT", onupdate="RESTRICT"),
+        ForeignKey("teams.id", ondelete="RESTRICT", onupdate="RESTRICT", name="users_team_id_fkey"),
         comment="Порядковый номер в списке команды",
     )
 
