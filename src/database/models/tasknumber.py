@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, UUID
+from sqlalchemy import ForeignKey, PrimaryKeyConstraint, UUID
 from sqlalchemy.orm import Mapped, relationship
 
 from database.models.declarative_base import BaseModel, Column
@@ -23,6 +23,8 @@ class TaskNumber(BaseModel):
     )
 
     tasks: Mapped[list["Task"]] = relationship(back_populates="list_of_tasks")
+
+    __table_args__ = (PrimaryKeyConstraint("idp_id", "task_id", name="task_number_pkey"),)
 
     def __repr__(self) -> str:
         return f"TaskNumber({self.idp_id}, {self.task_id})"

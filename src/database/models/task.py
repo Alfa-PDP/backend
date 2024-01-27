@@ -1,15 +1,10 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from sqlalchemy import Date, ForeignKey, String, UUID
 from sqlalchemy.orm import Mapped, relationship
 
 from database.models.declarative_base import BaseModel, Column
 from database.models.mixins import IdMixin, TsMixinCreated, TsMixinUpdated
-
-if TYPE_CHECKING:
-    from database.models.tasknumber import TaskNumber
-    from database.models.comment import Comment
 
 
 class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
