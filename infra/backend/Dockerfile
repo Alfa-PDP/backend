@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11-slim as main
 
 # Основной путь приложения
 ENV SRC_DIR=/opt
@@ -38,3 +38,9 @@ COPY ./src/gunicorn.conf.py gunicorn.conf.py
 EXPOSE 8000
 
 COPY infra/backend/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+FROM main as test
+
+RUN poetry install --no-root
+
+COPY ./src/tests $SRC_DIR/tests

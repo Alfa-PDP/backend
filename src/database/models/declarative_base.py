@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, MetaData
+from sqlalchemy import MetaData
 from sqlalchemy.orm import declarative_base, mapped_column
 
 Column = mapped_column
