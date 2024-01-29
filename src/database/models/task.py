@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import Date, ForeignKey, String, UUID
+from sqlalchemy import UUID, Date, ForeignKey, String
 from sqlalchemy.orm import Mapped
 
 from database.models.declarative_base import BaseModel, Column
@@ -18,7 +18,7 @@ class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
     importance: Mapped[str] = Column(String(10), nullable=False, comment="Значимость задачи")
     idp_id: Mapped[UUID] = Column(
         ForeignKey("idp.id", name="task_idp_id", ondelete="RESTRICT", onupdate="RESTRICT"),
-        comment="Идентифекатор ИПР задачи",
+        comment="Идентификатор ИПР задачи",
     )
     status_id: Mapped[UUID] = Column(
         ForeignKey("status.id", name="task_status", ondelete="RESTRICT", onupdate="RESTRICT"),

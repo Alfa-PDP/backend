@@ -1,5 +1,5 @@
-from sqlalchemy import ForeignKey, String, UUID
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import UUID, ForeignKey, String
+from sqlalchemy.orm import Mapped
 
 from database.models.declarative_base import BaseModel, Column
 from database.models.mixins import IdMixin, TsMixinCreated, TsMixinUpdated
