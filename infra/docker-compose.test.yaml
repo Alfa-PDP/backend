@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+
+  test-alfa-bank-pdp-backend-api:
+    container_name: test-alfa-bank-pdp-backend-api
+    build:
+      context: ../
+      dockerfile: infra/backend/Dockerfile
+      target: test
+    networks:
+      - test-alfa-bank-pdp-backend-network
+    depends_on:
+      - test-alfa-bank-pdp-backend-db # condition: service_healthy
+      - test-alfa-bank-pdp-backend-redis
+    env_file:
+      - ../src/.env.test
+    command: poetry run pytest -p no:cacheprovider tests
+
+  test-alfa-bank-pdp-backend-db:
+    image: postgres:14
+    container_name: test-alfa-bank-pdp-backend-db
+    networks:
+      - test-alfa-bank-pdp-backend-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
+    env_file:
+      - ../src/.env.test
+
+  test-alfa-bank-pdp-backend-redis:
+    image: redis:7.0.8-alpine
+    container_name: test-alfa-bank-pdp-backend-redis
+    networks:
+      - test-alfa-bank-pdp-backend-network
+    ports:
+      - "6379:6379"
+    env_file:
+      - ../src/.env.test
+    healthcheck:
+      test: redis-cli ping >/dev/null || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  test-alfa-bank-pdp-backend-network:
+    external: true
+
+volumes:
+  test_db_data:
