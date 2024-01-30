@@ -1,18 +1,37 @@
-from enum import StrEnum, auto
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import Base64Bytes, BaseModel, ConfigDict  # noqa
 
 
-class UserRole(StrEnum):
-    employee = auto()
-    supervisor = auto()
+class BaseUserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-
-class UserSchema(BaseModel):
-    id: UUID
     name: str
     family_name: str
-    surname: str
+    middle_name: str
     position: str
-    role: UserRole
+    avatar: Base64Bytes | None
+
+
+class UserSchema(BaseUserSchema):
+    id: UUID
+    team_id: UUID
+    avatar: Base64Bytes | None
+
+
+class UserWithTaskSchema(UserSchema):
+    task_count: int
+    task_progress: int
+
+
+class UserCreateSchema(BaseUserSchema):
+    pass
+
+
+class UserFilterParams(BaseModel):
+    team_id: UUID | None
+
+
+class UserOrderParams(BaseModel):
+    field: str
+    is_desc: bool = False
