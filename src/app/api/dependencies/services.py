@@ -1,7 +1,9 @@
 from app.api.dependencies.clients import CacheClientDep, DbSessionDep
 from app.repositories.users import SqlAlchemyUserRepository
+from app.repositories.goals import SqlAlchemyGoalRepository
 from app.services.status import StatusService
 from app.services.users import UsersService
+from app.services.goals import GoalsService
 
 
 def create_status_service(cache_client: CacheClientDep) -> StatusService:
@@ -11,4 +13,10 @@ def create_status_service(cache_client: CacheClientDep) -> StatusService:
 def create_users_service(db_session: DbSessionDep) -> UsersService:
     return UsersService(
         _user_repository=SqlAlchemyUserRepository(db_session),
+    )
+
+
+def create_goals_service(db_session: DbSessionDep) -> GoalsService:
+    return GoalsService(
+        _goal_repository=SqlAlchemyGoalRepository(db_session),
     )
