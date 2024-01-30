@@ -4,7 +4,7 @@ from app.api.dependencies.services import create_goals_service
 from app.services.goals import GoalsService
 from app.schemas.goals import GoalSchema
 
-router = APIRouter()
+router = APIRouter(tags=["Goals"])
 
 
 @router.get("/goals/{user_id}", response_model=list[GoalSchema])
@@ -12,9 +12,11 @@ async def get_goals_for_user(
     user_id: str,
     goals_service: GoalsService = Depends(create_goals_service),
 ):
-    goals = await goals_service.get_goals_for_user(user_id)
-    return goals
-
+    try:
+        goals = await goals_service.get_goals_for_user(user_id)
+        return goals
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=f"{error}")
 
 @router.post("/goals/{user_id}", response_model=GoalSchema)
 async def create_goal_for_user(
@@ -26,26 +28,29 @@ async def create_goal_for_user(
     return goal
 
 
-@router.put("/goals/{goal_id}", response_model=GoalSchema)
-async def update_goal(
-    goal_id: str,
+@router.patch("/goals/{user_id}", response_model=GoalSchema)
+async def patch_goal(
+    user_id: str,
     updated_data: dict,
     goals_service: GoalsService = Depends(create_goals_service),
 ):
-    goal = await goals_service.update_goal(goal_id, updated_data)
-    if goal:
-        return goal
-    raise HTTPException(status_code=404, detail="Goal not found")
+    try:
+        goal = await goals_service.update_goal(user_id, updated_data)
+        if goal:
+            return goal
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=f"{error}")
 
 
-@router.delete("/goals/{goal_id}", status_code=204, deprecated=True)
+@router.delete("/goals/{user_id}", status_code=204)
 async def delete_goal(
-    goal_id: str,
+    user_id: str,
     goals_service: GoalsService = Depends(create_goals_service),
 ):
     try:
-        # Тут пока всё отладка.
-        await goals_service.delete_goal(goal_id)
-        return {"message": "Goal deleted successfully"}
-    except Exception as err:
-        return {"message": f"error - {err}"}
+        await goals_service.delete_goal(user_id)
+        return
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=f"{error}")
+    except Exception as error:
+        return HTTPException(status_code=404, detail=f"{error}")

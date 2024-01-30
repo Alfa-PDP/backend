@@ -1,9 +1,11 @@
 from abc import ABC
+
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, text
-from uuid import UUID
+from sqlalchemy import select, func
 from database.models.goal import Goal
 from app.schemas.goals import GoalSchema
+from database.models.user import User
 
 
 class AbstractGoalRepository(ABC):
@@ -25,42 +27,80 @@ class SqlAlchemyGoalRepository(AbstractGoalRepository):
         self._session = session
 
     async def get_goals_for_user(self, user_id: str) -> list[GoalSchema]:
-        # Проверяем, является ли user_id строкой в формате UUID
         try:
-            user_id_uuid = UUID(user_id)
-        except ValueError:
-            # Если не удалось преобразовать в UUID, предполагаем, что это строка
+            # Проверка существования пользователя
+            user = await self._session.get(User, user_id)
+            if not user:
+                raise NoResultFound
+
+            # Запрос целей пользователя
             query = select(Goal).filter(Goal.user_id == user_id)
-        else:
-            # Если успешно преобразован в UUID, используем его в запросе
-            query = select(Goal).filter(Goal.user_id == user_id_uuid)
+            result = await self._session.execute(query)
+            goals = result.scalars().all()
 
-        result = await self._session.execute(query)
-        goals = result.scalars().all()
-        return [GoalSchema.from_orm(goal) for goal in goals]
+            return [GoalSchema.from_orm(goal) for goal in goals]
+        except NoResultFound:
+            raise ValueError(f"Пользователь с id {user_id} не найден.")
+        except Exception as e:
+            raise e
 
-    async def create_goal_for_user(self, user_id: str, goal_data: dict) -> GoalSchema:
+    async def create_goal_for_user(self, user_id: str,
+                                   goal_data: dict) -> GoalSchema:
         # Реализация создания цели пользователя в базе данных
+
+        goal_count = await self._session.scalar(
+            select(func.count(Goal.id)).filter(Goal.user_id == user_id)
+        )
+
+        if goal_count > 0:
+            raise ValueError(f"У пользователя {user_id} уже есть цели")
+
         goal = Goal(**goal_data, user_id=user_id)
         self._session.add(goal)
         await self._session.commit()
         return GoalSchema.from_orm(goal)
 
-    async def update_goal(self, id: str, updated_data: dict) -> GoalSchema:
-        # Реализация редактирования цели в базе данных
-        goal = await self._session.get(Goal, id)
-        if goal:
+    async def update_goal(self, user_id: str,
+                          updated_data: dict) -> GoalSchema:
+        try:
+            # Проверка существования пользователя
+            user = await self._session.get(User, user_id)
+            if not user:
+                raise NoResultFound
+
+            # Проверка существования цели пользователя
+            goal = await self._session.execute(
+                select(Goal).filter(Goal.user_id == user_id))
+            goal = goal.scalars().first()
+            if not goal:
+                raise NoResultFound
+
+            # Обновление данных цели
             for key, value in updated_data.items():
                 setattr(goal, key, value)
-            await self._session.commit()
-            return GoalSchema.from_orm(goal)
-        return None
 
-    async def delete_goal(self, id: str) -> None:
-        goal = await self._session.get(Goal, id)
-        if goal:
+            # Коммит изменений
+            await self._session.commit()
+
+            # Обновленный объект Goal
+            updated_goal = await self._session.execute(
+                select(Goal).filter(Goal.user_id == user_id))
+            return GoalSchema.from_orm(updated_goal.scalars().first())
+        except NoResultFound:
+            raise ValueError(
+                f"Пользователь с id {user_id} не найден или у него нет целей.")
+        except Exception as error:
+            await self._session.rollback()
+            raise error
+
+    async def delete_goal(self, user_id: str) -> None:
+        try:
+            goal = await self._session.execute(select(Goal).filter(Goal.user_id == user_id))
+            goal = goal.scalars().first()
+
+            if not goal:
+                raise NoResultFound
+
             await self._session.delete(goal)
-            await self._session.flush()
-            return None
-        else:
-            raise ValueError(f"Цели с id {id} не найдены!")
+        except NoResultFound:
+            raise ValueError(f"Пользователь с id {user_id} не найден или у него нет целей.")
