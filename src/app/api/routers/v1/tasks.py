@@ -1,4 +1,4 @@
-import logging
-from typing import Annotated
+import logging  # noqa
+from typing import Annotated  # noqa
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status  # noqa
