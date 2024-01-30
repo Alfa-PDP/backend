@@ -12,10 +12,11 @@
 
 ## Перед началом работы
 
-1. Установить poetry https://python-poetry.org/docs/#installation
-2. Выполнить команду `poetry install` для установки зависимостей
-3. Выполнить команду `poetry shell` для активации виртуального окружения
-4. Выполнить команду `pre-commit install` для инициализации pre-commit (запускает во время коммитов хуки из файла .pre-commit-config)
+- Установить poetry https://python-poetry.org/docs/#installation
+- Изменить настройки poetry для хранения виртуального окружения командой `poetry config virtualenvs.in-project true`
+- Выполнить команду `poetry install` для установки зависимостей
+- Выполнить команду `poetry shell` для активации виртуального окружения
+- Выполнить команду `pre-commit install` для инициализации pre-commit (запускает во время коммитов хуки из файла .pre-commit-config)
 
 > Можно вносить изменения в файлы с запущенными контейнерами, изменения будут видны сразу из-за того, что папка с исходным кодом замаунтина в контейнер.
 
@@ -25,3 +26,9 @@
 2. alembic revision --autogenerate -m "your comment"
 3. Проверьте созданные миграции в папке `src/database/migrations/versions` 
 4. alembic upgrade head
+
+## Тестирование
+
+`make run-tests` - запуск тестов
+
+Чтобы добавить библиотеку для тестирования используйте флаг -G test для poetry (`poetry add pytest-asyncio -G tests`)
