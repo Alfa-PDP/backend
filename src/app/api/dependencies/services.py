@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.api.dependencies.clients import CacheClientDep, DbSessionDep
-
+from app.api.dependencies.configs import MainConfigDep
 from app.api.dependencies.repositories import UserRepositoryDep
 from app.repositories.tasks import SqlAlchemyTaskRepository
-from app.repositories.users import SqlAlchemyUserRepository
+from app.services.auth import AbstractAuthService, FakeAuthService
 from app.services.status import StatusService
 from app.services.tasks import TasksService
 from app.services.users import UsersService
@@ -27,3 +27,12 @@ def create_tasks_service(db_session: DbSessionDep) -> TasksService:
     return TasksService(
         _task_repository=SqlAlchemyTaskRepository(db_session),
     )
+
+
+def create_auth_service(config: MainConfigDep) -> AbstractAuthService:
+    if not config.project.is_production:
+        return FakeAuthService()
+    return FakeAuthService()  # TODO поменять на реальную авторизацию при внедрении сервиса
+
+
+AuthServiceDep = Annotated[AbstractAuthService, Depends(create_auth_service)]
