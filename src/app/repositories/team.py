@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.errors import UserNotInTeamError
 from database.models.team import Team
 from database.models.user_team import UserTeam
 
@@ -27,6 +28,6 @@ class SQLAlchemyTeamRepository(AbstractTeamRepository):
         result = (await self._session.execute(query)).scalar_one_or_none()
 
         if not result:
-            raise Exception
+            raise UserNotInTeamError
 
         return result

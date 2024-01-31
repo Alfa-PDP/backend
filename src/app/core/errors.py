@@ -12,3 +12,7 @@ class TokenDecodeError(ApplicationError):
 
 class TokenExpiredError(ApplicationError):
     """Token expired error"""
+
+
+class UserNotInTeamError(ApplicationError):
+    """User not a member of the team"""
