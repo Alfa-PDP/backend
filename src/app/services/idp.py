@@ -35,6 +35,6 @@ class IDPService:
             avatar=user.avatar,
             team_id=user.team_id,
             task_count=len(tasks),
-            task_progress=UserProgress(tasks).user_progress,  # TODO: посчитать нормально
+            task_progress=UserProgress(tasks).progress,
             tasks=tasks,
         )

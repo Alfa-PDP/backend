@@ -1,5 +1,6 @@
 from functools import cached_property
 
+from app.schemas.task_status import StatusSlugEnum
 from app.schemas.tasks import TaskWithStatusSchema
 
 
@@ -8,9 +9,9 @@ class UserProgress:
         self._tasks = tasks
 
     @cached_property
-    def user_progress(self) -> int:
+    def progress(self) -> int:
         all_tasks = len(self._tasks)
-        completed_tasks = len([task for task in self._tasks if task.status.slug == "completed"])  # TODO: use enum
+        completed_tasks = len([task for task in self._tasks if task.status.slug == StatusSlugEnum.completed])
         return self.calculate(completed_tasks, all_tasks)
 
     @classmethod
