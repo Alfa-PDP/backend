@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod  # noqa
+from uuid import UUID
 
 from sqlalchemy import select  # noqa
 from sqlalchemy.ext.asyncio import AsyncSession  # noqa
@@ -9,7 +10,7 @@ from database.models.task import Task  # noqa
 
 class AbstractTaskRepository(ABC):
     @abstractmethod
-    async def get(self, obj_id: Task.id) -> TaskSchema:
+    async def get(self, obj_id: UUID) -> TaskSchema:
         raise NotImplementedError
 
     @abstractmethod
@@ -22,11 +23,11 @@ class AbstractTaskRepository(ABC):
 
 
 class SqlAlchemyTaskRepository(AbstractTaskRepository):
-    def __init__(self, model: Task, session: AsyncSession) -> None:
-        self._model = model
+    def __init__(self, session: AsyncSession, model: Task = Task) -> None:
         self._session = session
+        self._model = model
 
-    async def get(self, obj_id: Task.id) -> TaskSchema:
+    async def get(self, obj_id: UUID) -> TaskSchema:
         obj = await self._session.execute(select(self._model).where(self._model.id == obj_id))
         return obj.scalars().first()
 

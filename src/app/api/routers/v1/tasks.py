@@ -12,7 +12,7 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 logger = logging.getLogger().getChild("task-router")
 
-TasksServiceDep = Annotated[TasksService, Depends(create_tasks_service())]
+TasksServiceDep = Annotated[TasksService, Depends(create_tasks_service)]
 
 
 @router.get("/{task_id}", summary="Получить задачу по id", response_model=TaskSchema, status_code=status.HTTP_200_OK)
