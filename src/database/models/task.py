@@ -1,10 +1,14 @@
 from datetime import date
+from typing import TYPE_CHECKING
 
 from sqlalchemy import UUID, Date, ForeignKey, String
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, relationship
 
 from database.models.declarative_base import BaseModel, Column
 from database.models.mixins import IdMixin, TsMixinCreated, TsMixinUpdated
+
+if TYPE_CHECKING:
+    from database.models.status import Status
 
 
 class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
@@ -25,5 +29,7 @@ class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
         comment="Статус выполнения задачи",
     )
 
+    status: Mapped["Status"] = relationship()
+
     def __repr__(self) -> str:
-        return f"Task({self.id}, {self.task_name})"
+        return f"Task({self.id}, {self.name})"

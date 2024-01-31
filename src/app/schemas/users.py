@@ -15,11 +15,13 @@ class BaseUserSchema(BaseModel):
 
 class UserSchema(BaseUserSchema):
     id: UUID
+
+
+class UserWithTeamIdSchema(UserSchema):
     team_id: UUID
-    avatar: Base64Bytes | None
 
 
-class UserWithTaskSchema(UserSchema):
+class UserWithTaskSchema(UserWithTeamIdSchema):
     task_count: int
     task_progress: int
 
