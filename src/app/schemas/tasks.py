@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.task_status import TaskStatusSchema
+
 
 class TaskType(StrEnum):
     education = "Образование"
@@ -35,13 +37,4 @@ class TaskSchema(BaseModel):
 class TaskWithStatusSchema(TaskSchema):
     model_config = ConfigDict(from_attributes=True)
 
-    status: "TaskStatusSchema"
-
-
-class TaskStatusSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: UUID
-    slug: str
-    description: str
-    weight: float
+    status: TaskStatusSchema

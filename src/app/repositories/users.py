@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import column_property
 
 from app.core.errors import UserNotFoundError
+from app.schemas.task_status import StatusSlugEnum
 from app.schemas.users import UserCreateSchema, UserFilterParams, UserWithTeamIdSchema
 from database.models.idp import Idp
 from database.models.status import Status
@@ -60,7 +61,7 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
     async def count_completed_tasks_for_users(
         self, users: tuple[UUID, ...]
     ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
-        completed_tasks = func.count(Task.id).filter(Status.slug == "completed")  # TODO: исправить completed на Enum
+        completed_tasks = func.count(Task.id).filter(Status.slug == StatusSlugEnum.completed)
         all_tasks = func.count(Task.id)
 
         query = (
