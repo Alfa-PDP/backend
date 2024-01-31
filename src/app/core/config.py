@@ -1,3 +1,4 @@
+from enum import StrEnum, auto
 from pathlib import Path
 
 from pydantic import Field
@@ -7,6 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 ENV_FILE = str(BASE_DIR / ".env")
 ENV_FILE_LOCAL = str(BASE_DIR / ".env.local")
+
+
+class EnviromentEnum(StrEnum):
+    production = auto()
+    local = auto()
 
 
 class BaseConfig(BaseSettings):
@@ -26,6 +32,16 @@ class ProjectConfig(BaseConfig):
     openapi_url: str = Field(default="/api/openapi.json")
     description: str = Field(default="Alfa-Bank PDP")
     version: str = Field(default="0.1.0")
+    environment: str = Field(default=EnviromentEnum.local, alias="ENVIRONMENT")
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment == EnviromentEnum.production
+
+
+class AuthConfig(BaseConfig):
+    jwt_secret_key: str = Field(default=..., alias="JWT_SECRET_KEY")
+    encode_algorithm: str = Field(default=..., alias="ENCODE_ALGORITHM")
 
 
 class PostgresqlConfig(BaseConfig):
@@ -45,3 +61,4 @@ class MainConfig(BaseConfig):
     project: ProjectConfig = ProjectConfig()
     redis: RedisConfig = RedisConfig()
     postgresql: PostgresqlConfig = PostgresqlConfig()
+    auth: AuthConfig = AuthConfig()
