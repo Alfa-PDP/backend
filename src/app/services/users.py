@@ -41,6 +41,6 @@ class UsersService:
             all_tasks = info[2]
 
             users_ids[user_id][0] = all_tasks
-            users_ids[user_id][1] = UserProgress.calculate_user_progress(completed_tasks, all_tasks)
+            users_ids[user_id][1] = UserProgress.calculate(completed_tasks, all_tasks)
 
         return users_ids
