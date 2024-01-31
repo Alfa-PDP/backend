@@ -3,8 +3,7 @@ from typing import Annotated, TypedDict
 from uuid import UUID
 
 import jwt
-from fastapi import Security
-from fastapi.params import Depends
+from fastapi import Depends, Security
 from fastapi.security import APIKeyHeader
 
 from app.api.dependencies.configs import MainConfigDep
