@@ -8,9 +8,6 @@ from app.core.errors import UserNotInTeamError
 from database.models.team import Team
 from database.models.user_team import UserTeam
 
-CompletedTasks = int
-AllTasks = int
-
 
 class AbstractTeamRepository(ABC):
     @abstractmethod
