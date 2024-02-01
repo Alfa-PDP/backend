@@ -1,6 +1,3 @@
-import base64
-from functools import cache
-
 from database.models.user import User
 from testdata.factories.common_data import user_ids
 from testdata.factories.factory_base import BaseSQLAlchemyFactory
@@ -25,14 +22,7 @@ class UserFactory(BaseSQLAlchemyFactory[User]):
 
     @classmethod
     def avatar(cls) -> str:
-        return cls._get_avatar()
-
-    @classmethod
-    @cache
-    def _get_avatar(cls) -> str:
-        with open("src/testdata/avatar.png", "rb") as image_file:
-            base64_bytes = base64.b64encode(image_file.read())
-            return base64_bytes.decode()
+        return "https://cdn0.iconfinder.com/data/icons/user-pictures/100/malecostume-512.png"
 
     @classmethod
     def build_all(cls) -> list[User]:
