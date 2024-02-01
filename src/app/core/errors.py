@@ -14,5 +14,13 @@ class TokenExpiredError(ApplicationError):
     """Token expired error"""
 
 
-class UserNotInTeamError(ApplicationError):
+class BaseNotFoundError(ApplicationError):
+    """Base not found exception"""
+
+
+class UserNotInTeamError(BaseNotFoundError):
     """User not a member of the team"""
+
+
+class TeamNotFoundError(BaseNotFoundError):
+    """Team not found exception"""
