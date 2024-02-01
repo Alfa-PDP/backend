@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.api.dependencies.clients import DbSessionDep
+from app.repositories.comment import AbstractTaskCommentRepository, SQLAlchemyTaskCommentRepository
 from app.repositories.idp import AbstractIDPRepository, SQLAlchemyIDPRepository
 from app.repositories.tasks import AbstractTaskRepository, SQLAlchemyTaskRepository
 from app.repositories.team import AbstractTeamRepository, SQLAlchemyTeamRepository
@@ -35,3 +36,10 @@ def get_task_repository(db_session: DbSessionDep) -> AbstractTaskRepository:
 
 
 TaskRepositoryDep = Annotated[AbstractTaskRepository, Depends(get_task_repository)]
+
+
+def get_comment_repository(db_session: DbSessionDep) -> AbstractTaskCommentRepository:
+    return SQLAlchemyTaskCommentRepository(db_session)
+
+
+TaskCommentRepositoryDep = Annotated[AbstractTaskCommentRepository, Depends(get_comment_repository)]
