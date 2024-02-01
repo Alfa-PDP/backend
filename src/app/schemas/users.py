@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import Base64Bytes, BaseModel, ConfigDict  # noqa
+from pydantic import BaseModel, ConfigDict
 
 
 class BaseUserSchema(BaseModel):
@@ -10,7 +10,7 @@ class BaseUserSchema(BaseModel):
     family_name: str
     middle_name: str
     position: str
-    avatar: Base64Bytes | None
+    avatar: str | None
 
 
 class UserSchema(BaseUserSchema):

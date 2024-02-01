@@ -1,7 +1,7 @@
 import datetime
 from uuid import UUID
 
-from pydantic import Base64Bytes, BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict
 
 from app.schemas.tasks import TaskWithStatusSchema  # noqa
 
@@ -34,7 +34,7 @@ class IDPGetExtendedSchema(IDPGetSchema):
     family_name: str
     middle_name: str
     position: str
-    avatar: Base64Bytes | None
+    avatar: str | None
     team_id: UUID
     task_count: int
     task_progress: int
