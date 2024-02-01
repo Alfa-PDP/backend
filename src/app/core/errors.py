@@ -24,3 +24,11 @@ class UserNotInTeamError(BaseNotFoundError):
 
 class TeamNotFoundError(BaseNotFoundError):
     """Team not found exception"""
+
+
+class UserNotFoundError(BaseNotFoundError):
+    """User not found exception"""
+
+
+class IDPNotFoundError(BaseNotFoundError):
+    """IDP not found exception"""

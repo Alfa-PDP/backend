@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Sequence
 from uuid import UUID
 
+from app.domain.user_progress import UserProgress
 from app.repositories.users import AbstractUserRepository
 from app.schemas.users import UserFilterParams, UserOrderParams, UserWithTaskSchema
 
@@ -12,11 +13,8 @@ class UsersService:
 
     async def get_users(self, filters: UserFilterParams, order: UserOrderParams) -> list[UserWithTaskSchema]:
         users = await self._user_repository.get_all(filters)
-
         users_ids = {user.id: [0, 0] for user in users}
-
         user_ids_with_tasks = await self._user_repository.count_completed_tasks_for_users(tuple(users_ids.keys()))
-
         self._aggregate_users_info(users_ids, user_ids_with_tasks)
 
         users_gen = (
@@ -43,9 +41,6 @@ class UsersService:
             all_tasks = info[2]
 
             users_ids[user_id][0] = all_tasks
-            users_ids[user_id][1] = self._calculate_user_progress(completed_tasks, all_tasks)
+            users_ids[user_id][1] = UserProgress.calculate(completed_tasks, all_tasks)
 
         return users_ids
-
-    def _calculate_user_progress(self, completed_tasks: int, all_tasks: int) -> int:
-        return int(completed_tasks / all_tasks * 100) if completed_tasks else 0

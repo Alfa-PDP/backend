@@ -2,7 +2,9 @@ from datetime import date
 from enum import StrEnum
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+from app.schemas.task_status import TaskStatusSchema
 
 
 class TaskType(StrEnum):
@@ -30,3 +32,9 @@ class TaskSchema(BaseModel):
     importance: ImportanceType
     idp_id: UUID
     status_id: UUID
+
+
+class TaskWithStatusSchema(TaskSchema):
+    model_config = ConfigDict(from_attributes=True)
+
+    status: TaskStatusSchema
