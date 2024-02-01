@@ -1,10 +1,16 @@
 from datetime import date
 from enum import StrEnum
-from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
 from app.schemas.task_status import TaskStatusSchema
+
+
+class TaskBase(BaseModel):
+    name: str
+    description: str
+    start_time: date
+    end_time: date
 
 
 class TaskType(StrEnum):
@@ -22,19 +28,30 @@ class ImportanceType(StrEnum):
     easy = "Низкая"
 
 
-class TaskSchema(BaseModel):
-    id: UUID
-    name: str
-    description: str
+class TaskGetSchema(TaskBase):
+    id: int
+    idp_id: int
     task_type: TaskType
-    start_time: date
-    end_time: date
     importance: ImportanceType
-    idp_id: UUID
-    status_id: UUID
+    status_id: int
+    items: TaskStatusSchema
+    # schema: list[TaskCommentSchema]
 
 
-class TaskWithStatusSchema(TaskSchema):
+class TaskCreateSchema(TaskBase):
+    idp_id: int
+    importance: ImportanceType
+    task_type: TaskType
+    status_id: int
+
+
+class TaskUpdateSchema(TaskBase):
+    id: int
+    task_type: TaskType
+    importance: ImportanceType
+
+
+class TaskWithStatusSchema(TaskBase):
     model_config = ConfigDict(from_attributes=True)
 
     status: TaskStatusSchema

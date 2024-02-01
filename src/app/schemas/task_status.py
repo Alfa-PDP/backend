@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class StatusSlugEnum(StrEnum):
+    created = "created"
     completed = auto()
     canceled = auto()
     in_progress = "in-progress"
