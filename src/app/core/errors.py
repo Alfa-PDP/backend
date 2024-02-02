@@ -32,3 +32,11 @@ class UserNotFoundError(BaseNotFoundError):
 
 class IDPNotFoundError(BaseNotFoundError):
     """IDP not found exception"""
+
+
+class TaskNotFoundError(BaseNotFoundError):
+    """Task not found exception"""
+
+
+class TaskStatusNotFoundError(BaseNotFoundError):
+    """Status not found exception"""
