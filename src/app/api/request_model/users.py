@@ -1,8 +1,9 @@
+import datetime
 from enum import StrEnum, auto
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends
+from fastapi import Depends, Query
 from pydantic import BaseModel
 
 
@@ -24,3 +25,10 @@ class UserQueryParams(BaseModel):
 
 
 UserQueryParamsDep = Annotated[UserQueryParams, Depends()]
+
+
+class UserTasksQueryParams(BaseModel):
+    year: int = Query(default=datetime.datetime.now().year)
+
+
+UserTasksQueryParamsDep = Annotated[UserTasksQueryParams, Depends()]
