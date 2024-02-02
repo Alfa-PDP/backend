@@ -25,8 +25,14 @@ def create_users_service(user_repository: UserRepositoryDep) -> UsersService:
 UsersServiceDep = Annotated[UsersService, Depends(create_users_service)]
 
 
-def create_tasks_service(tasks_repository: TaskRepositoryDep) -> TasksService:
-    return TasksService(_task_repository=tasks_repository)
+def create_tasks_service(
+    tasks_repository: TaskRepositoryDep,
+    idp_repository: IDPRepositoryDep,
+) -> TasksService:
+    return TasksService(
+        _task_repository=tasks_repository,
+        _idp_repository=idp_repository,
+    )
 
 
 def create_auth_service(config: MainConfigDep, team_repository: TeamRepositoryDep) -> AbstractAuthService:
@@ -44,7 +50,9 @@ def get_idp_service(
         idp_repository: IDPRepositoryDep, user_repository: UserRepositoryDep, tasks_repository: TaskRepositoryDep
 ) -> IDPService:
     return IDPService(
-        _idp_repository=idp_repository, _user_repository=user_repository, _tasks_repository=tasks_repository
+        _idp_repository=idp_repository,
+        _user_repository=user_repository,
+        _tasks_repository=tasks_repository,
     )
 
 

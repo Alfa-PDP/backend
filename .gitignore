@@ -136,3 +136,4 @@ movies_admin/static
 
 .vscode
 .ruff_cache
+.DS_Store

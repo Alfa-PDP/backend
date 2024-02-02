@@ -4,7 +4,17 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.comment import GetTaskCommentSchema
 from app.schemas.task_status import TaskStatusSchema
+
+
+class TaskBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    description: str
+    start_time: date
+    end_time: date
 
 
 class TaskType(StrEnum):
@@ -22,19 +32,27 @@ class ImportanceType(StrEnum):
     easy = "Низкая"
 
 
-class TaskSchema(BaseModel):
+class TaskGetSchema(TaskBase):
     id: UUID
-    name: str
-    description: str
-    task_type: TaskType
-    start_time: date
-    end_time: date
-    importance: ImportanceType
     idp_id: UUID
+    task_type: TaskType
+    importance: ImportanceType
+    status_id: UUID
+    status: TaskStatusSchema
+
+
+class TaskCreateSchema(TaskBase):
+    idp_id: UUID
+    importance: ImportanceType
+    task_type: TaskType
     status_id: UUID
 
 
-class TaskWithStatusSchema(TaskSchema):
-    model_config = ConfigDict(from_attributes=True)
+class TaskUpdateSchema(TaskBase):
+    id: UUID
+    task_type: TaskType
+    importance: ImportanceType
 
-    status: TaskStatusSchema
+
+class TaskWithCommentsGetSchema(TaskGetSchema):
+    comments: list[GetTaskCommentSchema]

@@ -24,8 +24,11 @@ run-tests: create_test_network ## run and uninstall tests
 	@docker-compose -p test-alfa-bank-pdp-backend-api -f infra/docker-compose.test.yaml down --remove-orphans --volumes
 	@docker-compose -p test-alfa-bank-pdp-backend-api -f infra/docker-compose.test.yaml up --build --abort-on-container-exit
 
+.PHONY: create-test-data
+create-test-data:
+	@python3 -m src.testdata.main
+
 
 .PHONY: help
 help: ## help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-

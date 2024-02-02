@@ -22,11 +22,11 @@ AllTasks = int
 
 class AbstractUserRepository(ABC):
     @abstractmethod
-    async def get_all(self, filters: UserFilterParams) -> list[UserWithTeamIdSchema]:
+    async def get_all(self, filters: UserFilterParams) -> list[GetUserSchema]:
         raise NotImplementedError
 
     @abstractmethod
-    async def create(self, user_data: UserCreateSchema) -> None:
+    async def create(self, user_data: CreateUserSchema) -> None:
         raise NotImplementedError
 
     @abstractmethod
@@ -36,7 +36,7 @@ class AbstractUserRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_by_id(self, user_id: UUID) -> UserWithTeamIdSchema:
+    async def get_by_id(self, user_id: UUID) -> GetUserSchema:
         raise NotImplementedError
 
     @abstractmethod
@@ -48,7 +48,7 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def get_all(self, filters: UserFilterParams) -> list[UserWithTeamIdSchema]:
+    async def get_all(self, filters: UserFilterParams) -> list[GetUserSchema]:
         User.team_id = column_property(UserTeam.team_id, expire_on_flush=True)
         query = select(User).join(UserTeam)
 
@@ -57,9 +57,9 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
 
         results = (await self._session.execute(query)).scalars().all()
 
-        return [UserWithTeamIdSchema.model_validate(result) for result in results]
+        return [GetUserSchema.model_validate(result) for result in results]
 
-    async def create(self, user_data: UserCreateSchema) -> None:
+    async def create(self, user_data: CreateUserSchema) -> None:
         user = User(**user_data.model_dump())
         self._session.add(user)
 
@@ -81,7 +81,7 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
         results = (await self._session.execute(query)).tuples().all()
         return results
 
-    async def get_by_id(self, user_id: UUID) -> UserWithTeamIdSchema:
+    async def get_by_id(self, user_id: UUID) -> GetUserSchema:
         User.team_id = column_property(UserTeam.team_id, expire_on_flush=True)
         query = select(User).where(User.id == user_id).join(UserTeam)
         result = (await self._session.execute(query)).scalar_one_or_none()
