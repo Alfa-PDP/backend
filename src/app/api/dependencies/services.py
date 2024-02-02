@@ -58,7 +58,7 @@ AuthServiceDep = Annotated[AbstractAuthService, Depends(create_auth_service)]
 
 
 def get_idp_service(
-        idp_repository: IDPRepositoryDep, user_repository: UserRepositoryDep, tasks_repository: TaskRepositoryDep
+    idp_repository: IDPRepositoryDep, user_repository: UserRepositoryDep, tasks_repository: TaskRepositoryDep
 ) -> IDPService:
     return IDPService(
         _idp_repository=idp_repository,
