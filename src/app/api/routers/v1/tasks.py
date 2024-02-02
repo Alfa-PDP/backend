@@ -36,9 +36,9 @@ async def _update_task(task_id: UUID, task_data: TaskUpdateSchema, tasks_service
 
 
 @router.delete("", summary="Удаление задачи", status_code=status.HTTP_204_NO_CONTENT)
-async def _delete_task(task_id: UUID, tasks_service: TasksServiceDep) -> dict:
+async def _delete_task(task_id: UUID, tasks_service: TasksServiceDep) -> None:
     logger.debug("Delete Task")
-    return await tasks_service.delete(task_id)
+    await tasks_service.delete(task_id)
 
 
 @router.get(
