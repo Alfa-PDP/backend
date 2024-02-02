@@ -3,6 +3,7 @@ from typing import Sequence
 from uuid import UUID
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import column_property
 
@@ -30,12 +31,16 @@ class AbstractUserRepository(ABC):
 
     @abstractmethod
     async def count_completed_tasks_for_users(
-        self, users: tuple[UUID, ...]
+            self, users: tuple[UUID, ...]
     ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
         raise NotImplementedError
 
     @abstractmethod
     async def get_by_id(self, user_id: UUID) -> GetUserSchema:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get(self, user_id: UUID) -> GetUserSchema:
         raise NotImplementedError
 
 
@@ -59,7 +64,7 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
         self._session.add(user)
 
     async def count_completed_tasks_for_users(
-        self, users: tuple[UUID, ...]
+            self, users: tuple[UUID, ...]
     ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
         completed_tasks = func.count(Task.id).filter(Status.slug == StatusSlugEnum.completed)
         all_tasks = func.count(Task.id)
@@ -85,3 +90,16 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
             raise UserNotFoundError
 
         return GetUserSchema.model_validate(result)
+
+    async def get(self, user_id: UUID) -> GetUserSchema:
+        try:
+            user = await self._session.get(User, user_id)
+            if not user:
+                raise NoResultFound(f"User with id {user_id} not found.")
+            return GetUserSchema.model_validate(user)
+        except NoResultFound:
+            # Обработка ситуации, когда пользователь не найден
+            raise UserNotFoundError(f"User with id {user_id} not found.")
+        except Exception:
+            # Другие исключения, которые могут возникнуть при работе с БД
+            raise

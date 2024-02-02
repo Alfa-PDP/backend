@@ -33,7 +33,7 @@ class UsersService:
         return result
 
     def _aggregate_users_info(
-        self, users_ids: dict[UUID, list[int]], user_ids_with_tasks: Sequence[tuple[UUID, int, int]]
+            self, users_ids: dict[UUID, list[int]], user_ids_with_tasks: Sequence[tuple[UUID, int, int]]
     ) -> dict[UUID, list[int]]:
         for info in user_ids_with_tasks:
             user_id = info[0]

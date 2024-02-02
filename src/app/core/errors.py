@@ -2,6 +2,12 @@ class ApplicationError(Exception):
     """Base application error"""
 
 
+class LengthError(Exception):
+    """String length exceeded error"""
+
+    pass
+
+
 class BaseForbiddenError(ApplicationError):
     """Base Auth Exception"""
 

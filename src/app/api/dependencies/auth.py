@@ -22,9 +22,9 @@ class PayloadDict(TypedDict):
 
 
 async def authorize_user(
-    auth_service: AuthServiceDep,
-    config: MainConfigDep,
-    access_token: str | None = Security(api_key_header),
+        auth_service: AuthServiceDep,
+        config: MainConfigDep,
+        access_token: str | None = Security(api_key_header),
 ) -> AuthData:
     if not access_token:
         raise errors.BaseForbiddenError
@@ -40,10 +40,10 @@ def _validate_token(token: str, config: AuthConfig) -> PayloadDict:
     try:
         payload: PayloadDict = jwt.decode(token, config.jwt_secret_key, algorithms=[config.encode_algorithm])
     except (
-        jwt.DecodeError,
-        jwt.InvalidKeyError,
-        jwt.InvalidIssuerError,
-        jwt.InvalidSignatureError,
+            jwt.DecodeError,
+            jwt.InvalidKeyError,
+            jwt.InvalidIssuerError,
+            jwt.InvalidSignatureError,
     ):
         logger.error(f"Can't decode jwt token! See {token}")
         raise errors.TokenDecodeError
