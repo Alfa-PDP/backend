@@ -11,6 +11,10 @@ from database.models.idp import Idp
 
 class AbstractIDPRepository(ABC):
     @abstractmethod
+    async def get(self, idp_id: UUID) -> IDPGetSchema:
+        raise NotImplementedError
+
+    @abstractmethod
     async def create(self, user_data: IDPCreateSchema) -> None:
         raise NotImplementedError
 
@@ -26,6 +30,13 @@ class AbstractIDPRepository(ABC):
 class SQLAlchemyIDPRepository(AbstractIDPRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+
+    async def get(self, idp_id: UUID) -> IDPGetSchema:
+        query = select(Idp).where(Idp.id == idp_id)
+        result = (await self._session.execute(query)).scalars().first()
+        if not result:
+            raise IDPNotFoundError
+        return IDPGetSchema.model_validate(result)
 
     async def create(self, ipd_data: IDPCreateSchema) -> None:
         idp = Idp(**ipd_data.model_dump())
