@@ -22,7 +22,7 @@ class StatusSlugEnum(StrEnum):
             case _:
                 assert_never(self)
 
-                
+
 class TaskStatusSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
