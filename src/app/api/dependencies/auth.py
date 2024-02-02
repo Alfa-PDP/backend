@@ -31,16 +31,14 @@ async def authorize_user(
 
     payload = _validate_token(access_token, config.auth)
 
-    auth_data: AuthData = await auth_service.authorize_user(
-        UUID(payload["user_id"]))
+    auth_data: AuthData = await auth_service.authorize_user(UUID(payload["user_id"]))
     logger.debug(f"User request: user_id - {auth_data.user_id}")
     return auth_data
 
 
 def _validate_token(token: str, config: AuthConfig) -> PayloadDict:
     try:
-        payload: PayloadDict = jwt.decode(token, config.jwt_secret_key,
-                                          algorithms=[config.encode_algorithm])
+        payload: PayloadDict = jwt.decode(token, config.jwt_secret_key, algorithms=[config.encode_algorithm])
     except (
             jwt.DecodeError,
             jwt.InvalidKeyError,

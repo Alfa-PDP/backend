@@ -9,8 +9,7 @@ from sqlalchemy.orm import column_property
 
 from app.core.errors import UserNotFoundError
 from app.schemas.task_status import StatusSlugEnum
-from app.schemas.users import UserCreateSchema, UserFilterParams, \
-    UserWithTeamIdSchema, UserSchema
+from app.schemas.users import UserCreateSchema, UserFilterParams, UserSchema, UserWithTeamIdSchema
 from database.models.idp import Idp
 from database.models.status import Status
 from database.models.task import Task
@@ -23,8 +22,7 @@ AllTasks = int
 
 class AbstractUserRepository(ABC):
     @abstractmethod
-    async def get_all(self, filters: UserFilterParams) -> list[
-        UserWithTeamIdSchema]:
+    async def get_all(self, filters: UserFilterParams) -> list[UserWithTeamIdSchema]:
         raise NotImplementedError
 
     @abstractmethod
@@ -50,8 +48,7 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def get_all(self, filters: UserFilterParams) -> list[
-        UserWithTeamIdSchema]:
+    async def get_all(self, filters: UserFilterParams) -> list[UserWithTeamIdSchema]:
         User.team_id = column_property(UserTeam.team_id, expire_on_flush=True)
         query = select(User).join(UserTeam)
 
@@ -60,8 +57,7 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
 
         results = (await self._session.execute(query)).scalars().all()
 
-        return [UserWithTeamIdSchema.model_validate(result) for result in
-                results]
+        return [UserWithTeamIdSchema.model_validate(result) for result in results]
 
     async def create(self, user_data: UserCreateSchema) -> None:
         user = User(**user_data.model_dump())
@@ -70,8 +66,7 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
     async def count_completed_tasks_for_users(
             self, users: tuple[UUID, ...]
     ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
-        completed_tasks = func.count(Task.id).filter(
-            Status.slug == StatusSlugEnum.completed)
+        completed_tasks = func.count(Task.id).filter(Status.slug == StatusSlugEnum.completed)
         all_tasks = func.count(Task.id)
 
         query = (
@@ -102,9 +97,9 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
             if not user:
                 raise NoResultFound(f"User with id {user_id} not found.")
             return UserSchema.model_validate(user)
-        except NoResultFound as e:
+        except NoResultFound:
             # Обработка ситуации, когда пользователь не найден
             raise UserNotFoundError(f"User with id {user_id} not found.")
-        except Exception as e:
+        except Exception:
             # Другие исключения, которые могут возникнуть при работе с БД
             raise

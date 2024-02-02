@@ -7,8 +7,7 @@ from app.api.dependencies.repositories import UserRepositoryDep
 from app.api.dependencies.services import UsersServiceDep
 from app.api.request_model.users import UserQueryParamsDep
 from app.schemas.auth import AuthData
-from app.schemas.users import UserCreateSchema, UserFilterParams, \
-    UserOrderParams, UserWithTaskSchema
+from app.schemas.users import UserCreateSchema, UserFilterParams, UserOrderParams, UserWithTaskSchema
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -21,12 +20,10 @@ logger = logging.getLogger().getChild("user-router")
     response_model=list[UserWithTaskSchema],
     status_code=status.HTTP_200_OK,
 )
-async def get_users(users_service: UsersServiceDep,
-                    queries: UserQueryParamsDep) -> list[UserWithTaskSchema]:
+async def get_users(users_service: UsersServiceDep, queries: UserQueryParamsDep) -> list[UserWithTaskSchema]:
     logger.debug(f"Getting users with {queries} params")
     filters = UserFilterParams(team_id=queries.team_id)
-    order = UserOrderParams(field=queries.order.field,
-                            is_desc=queries.order.is_desc)
+    order = UserOrderParams(field=queries.order.field, is_desc=queries.order.is_desc)
     return await users_service.get_users(filters, order)
 
 
@@ -35,8 +32,7 @@ async def get_users(users_service: UsersServiceDep,
     summary="Добавление сотрудника",
     status_code=status.HTTP_201_CREATED,
 )
-async def create_user(user_data: UserCreateSchema,
-                      users_repository: UserRepositoryDep) -> None:
+async def create_user(user_data: UserCreateSchema, users_repository: UserRepositoryDep) -> None:
     logger.debug(f"Create user: {user_data}")
     return await users_repository.create(user_data)
 

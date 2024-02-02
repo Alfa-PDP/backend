@@ -17,8 +17,7 @@ logger = logging.getLogger().getChild("idp-router")
     summary="Добавить ИПР",
     status_code=status.HTTP_201_CREATED,
 )
-async def create_idp(idp_service: IDPServiceDep,
-                     idp_data: IDPCreateSchema) -> None:
+async def create_idp(idp_service: IDPServiceDep, idp_data: IDPCreateSchema) -> None:
     logger.debug(f"Create IDP with {idp_data}")
     await idp_service.create(idp_data)
 
@@ -29,8 +28,7 @@ async def create_idp(idp_service: IDPServiceDep,
     response_model=IDPGetExtendedSchema,
     status_code=status.HTTP_200_OK,
 )
-async def get_idp(user_id: UUID, idp_service: IDPServiceDep,
-                  query_params: IDPQueryParamsDep) -> IDPGetExtendedSchema:
+async def get_idp(user_id: UUID, idp_service: IDPServiceDep, query_params: IDPQueryParamsDep) -> IDPGetExtendedSchema:
     logger.debug(f"Get IDP for user {user_id}")
     filters = IDPFilter(year=query_params.year)
     return await idp_service.get_by_user_id(user_id, filters)

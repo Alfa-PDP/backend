@@ -17,10 +17,8 @@ logger = logging.getLogger().getChild("task-router")
 TasksServiceDep = Annotated[TasksService, Depends(create_tasks_service)]
 
 
-@router.get("/{task_id}", summary="Получить задачу по id",
-            response_model=TaskSchema, status_code=status.HTTP_200_OK)
-async def _get_task(task_id: UUID,
-                    tasks_service: TasksServiceDep) -> TaskSchema:
+@router.get("/{task_id}", summary="Получить задачу по id", response_model=TaskSchema, status_code=status.HTTP_200_OK)
+async def _get_task(task_id: UUID, tasks_service: TasksServiceDep) -> TaskSchema:
     logger.debug("Get api status")
     return await tasks_service.get_task(task_id=task_id)
 
@@ -31,9 +29,7 @@ async def _get_task(task_id: UUID,
     response_model=list[GetTaskCommentSchema],
     status_code=status.HTTP_200_OK,
 )
-async def get_comments(task_id: UUID,
-                       comment_repository: TaskCommentRepositoryDep) -> list[
-    GetTaskCommentSchema]:
+async def get_comments(task_id: UUID, comment_repository: TaskCommentRepositoryDep) -> list[GetTaskCommentSchema]:
     logger.debug(f"Getting task {task_id} comments")
     return await comment_repository.get_all_by_task_id(task_id)
 

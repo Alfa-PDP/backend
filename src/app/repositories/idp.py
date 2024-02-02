@@ -15,8 +15,7 @@ class AbstractIDPRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_by_user_and_filter(self, user_id: UUID,
-                                     filter: IDPFilter) -> IDPGetSchema:
+    async def get_by_user_and_filter(self, user_id: UUID, filter: IDPFilter) -> IDPGetSchema:
         raise NotImplementedError
 
 
@@ -29,10 +28,8 @@ class SQLAlchemyIDPRepository(AbstractIDPRepository):
         self._session.add(idp)
         await self._session.commit()
 
-    async def get_by_user_and_filter(self, user_id: UUID,
-                                     filter: IDPFilter) -> IDPGetSchema:
-        query = select(Idp).where(
-            and_(Idp.user_id == user_id, Idp.year == filter.year))
+    async def get_by_user_and_filter(self, user_id: UUID, filter: IDPFilter) -> IDPGetSchema:
+        query = select(Idp).where(and_(Idp.user_id == user_id, Idp.year == filter.year))
         result = (await self._session.execute(query)).scalar_one_or_none()
         if not result:
             raise IDPNotFoundError

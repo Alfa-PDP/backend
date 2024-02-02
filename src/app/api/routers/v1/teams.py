@@ -28,7 +28,6 @@ async def get_teams(team_repository: TeamRepositoryDep) -> list[TeamSchema]:
     response_model=TeamSchema,
     status_code=status.HTTP_200_OK,
 )
-async def get_team(team_id: UUID,
-                   team_repository: TeamRepositoryDep) -> TeamSchema:
+async def get_team(team_id: UUID, team_repository: TeamRepositoryDep) -> TeamSchema:
     logger.debug(f"Get team with id {team_id}")
     return await team_repository.get_by_id(team_id)

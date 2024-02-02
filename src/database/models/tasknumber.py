@@ -14,13 +14,11 @@ class TaskNumber(BaseModel):
     __tablename__ = "task_number"
 
     idp_id: Mapped[UUID] = Column(
-        ForeignKey("idp.id", name="task_in_idp", ondelete="RESTRICT",
-                   onupdate="RESTRICT"),
+        ForeignKey("idp.id", name="task_in_idp", ondelete="RESTRICT", onupdate="RESTRICT"),
         comment="ИПР связанный с задачей",
     )
     task_id: Mapped[UUID] = Column(
-        ForeignKey("tasks.id", name="task_id_list", ondelete="RESTRICT",
-                   onupdate="RESTRICT"),
+        ForeignKey("tasks.id", name="task_id_list", ondelete="RESTRICT", onupdate="RESTRICT"),
         comment="Порядковый номер в списке задач",
     )
 

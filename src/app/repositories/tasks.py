@@ -23,20 +23,17 @@ class AbstractTaskRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[
-        TaskWithStatusSchema]:
+    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskWithStatusSchema]:
         raise NotImplementedError
 
 
 class SQLAlchemyTaskRepository(AbstractTaskRepository):
-    def __init__(self, session: AsyncSession,
-                 model: type[Task] = Task) -> None:
+    def __init__(self, session: AsyncSession, model: type[Task] = Task) -> None:
         self._session = session
         self._model = model
 
     async def get(self, obj_id: UUID) -> TaskSchema:
-        obj = await self._session.execute(
-            select(self._model).where(self._model.id == obj_id))
+        obj = await self._session.execute(select(self._model).where(self._model.id == obj_id))
         return obj.scalars().first()
 
     async def put(self, obj_in: TaskSchema, **kwargs: dict) -> TaskSchema:
@@ -52,10 +49,7 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         await self._session.commit()
         return db_obj
 
-    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[
-        TaskWithStatusSchema]:
-        query = select(Task).join(Task.status).where(
-            Task.idp_id == idp_id).options(contains_eager(Task.status))
+    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskWithStatusSchema]:
+        query = select(Task).join(Task.status).where(Task.idp_id == idp_id).options(contains_eager(Task.status))
         results = (await self._session.execute(query)).scalars().all()
-        return [TaskWithStatusSchema.model_validate(result) for result in
-                results]
+        return [TaskWithStatusSchema.model_validate(result) for result in results]

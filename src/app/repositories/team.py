@@ -29,9 +29,7 @@ class SQLAlchemyTeamRepository(AbstractTeamRepository):
         self._session = session
 
     async def get_by_user_id(self, user_id: UUID) -> TeamSchema:
-        query = select(Team).join(UserTeam,
-                                  onclause=and_(UserTeam.user_id == user_id,
-                                                UserTeam.team_id == Team.id))
+        query = select(Team).join(UserTeam, onclause=and_(UserTeam.user_id == user_id, UserTeam.team_id == Team.id))
 
         result = (await self._session.execute(query)).scalar_one_or_none()
 
@@ -41,8 +39,7 @@ class SQLAlchemyTeamRepository(AbstractTeamRepository):
         return TeamSchema.model_validate(result)
 
     async def get_by_id(self, team_id: UUID) -> TeamSchema:
-        result = (await self._session.execute(
-            select(Team).where(Team.id == team_id))).scalar_one_or_none()
+        result = (await self._session.execute(select(Team).where(Team.id == team_id))).scalar_one_or_none()
 
         if not result:
             raise errors.TeamNotFoundError

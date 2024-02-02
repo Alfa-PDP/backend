@@ -12,7 +12,7 @@ router = APIRouter(tags=["Goals"])
 async def get_goals_for_user(
         user_id: str,
         goals_service: GoalsService = Depends(create_goals_service),
-):
+) -> GoalSchema:
     try:
         goals = await goals_service.get_goals_for_user(user_id)
         return goals
@@ -29,7 +29,7 @@ async def create_goal_for_user(
         user_id: str,
         goal_data: dict,
         goals_service: GoalsService = Depends(create_goals_service),
-):
+) -> GoalSchema:
     try:
         goal = await goals_service.create_goal_for_user(user_id, goal_data)
         return goal
@@ -44,7 +44,7 @@ async def patch_goal(
         user_id: str,
         updated_data: dict,
         goals_service: GoalsService = Depends(create_goals_service),
-):
+) -> GoalSchema:
     try:
         goal = await goals_service.update_goal(user_id, updated_data)
         if goal:
@@ -57,11 +57,11 @@ async def patch_goal(
 async def delete_goal(
         user_id: str,
         goals_service: GoalsService = Depends(create_goals_service),
-):
+) -> None:
     try:
         await goals_service.delete_goal(user_id)
         return
     except ValueError as error:
         raise HTTPException(status_code=404, detail=f"{error}")
     except Exception as error:
-        return HTTPException(status_code=404, detail=f"{error}")
+        raise HTTPException(status_code=404, detail=f"{error}")

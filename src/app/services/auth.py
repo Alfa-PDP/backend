@@ -18,5 +18,4 @@ class FakeAuthService(AbstractAuthService):
 
     async def authorize_user(self, user_id: UUID) -> AuthData:
         team = await self._team_repository.get_by_user_id(user_id)
-        return AuthData(user_id=user_id, team_id=team.id,
-                        is_leader=team.leader_id == user_id)
+        return AuthData(user_id=user_id, team_id=team.id, is_leader=team.leader_id == user_id)

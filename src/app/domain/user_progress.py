@@ -11,8 +11,7 @@ class UserProgress:
     @cached_property
     def progress(self) -> int:
         all_tasks = len(self._tasks)
-        completed_tasks = len([task for task in self._tasks if
-                               task.status.slug == StatusSlugEnum.completed])
+        completed_tasks = len([task for task in self._tasks if task.status.slug == StatusSlugEnum.completed])
         return self.calculate(completed_tasks, all_tasks)
 
     @classmethod

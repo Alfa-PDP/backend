@@ -18,13 +18,10 @@ class IDPService:
         await self._user_repository.get_by_id(idp_data.user_id)
         await self._idp_repository.create(idp_data)
 
-    async def get_by_user_id(self, user_id: UUID,
-                             filter: IDPFilter) -> IDPGetExtendedSchema:
+    async def get_by_user_id(self, user_id: UUID, filter: IDPFilter) -> IDPGetExtendedSchema:
         user = await self._user_repository.get_by_id(user_id)
-        idp = await self._idp_repository.get_by_user_and_filter(user_id,
-                                                                filter)
-        tasks = await self._tasks_repository.get_all_by_idp_id_with_status(
-            idp.id)
+        idp = await self._idp_repository.get_by_user_and_filter(user_id, filter)
+        tasks = await self._tasks_repository.get_all_by_idp_id_with_status(idp.id)
         return IDPGetExtendedSchema(
             id=idp.id,
             start_date=idp.start_date,
