@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, relationship
 
 from database.models.declarative_base import BaseModel, Column
 from database.models.mixins import IdMixin, TsMixinCreated, TsMixinUpdated
+from database.models.status import Status
 
 if TYPE_CHECKING:
     from database.models.comment import Comment
@@ -31,7 +32,7 @@ class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
     )
 
     status: Mapped["Status"] = relationship()
-    comments: Mapped["Comment"] = relationship(uselist=True)
+    comments: Mapped[list["Comment"]] = relationship()
 
     def __repr__(self) -> str:
         return f"Task({self.id}, {self.name})"
