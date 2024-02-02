@@ -1,72 +1,69 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from uuid import UUID
 
+from fastapi import HTTPException
 from sqlalchemy import select, func
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import LengthError
+from app.core.errors import UserNotFoundError
+from app.repositories.users import AbstractUserRepository
 from app.schemas.goals import GoalSchema
 from database.models.goal import Goal
-from database.models.user import User
 
 
 class AbstractGoalRepository(ABC):
-    async def get_goals_for_user(self, user_id: str) -> list[GoalSchema]:
+    @abstractmethod
+    async def get_goals_for_user(self, user_id: UUID) -> list[GoalSchema]:
         raise NotImplementedError
 
-    async def create_goal_for_user(self, user_id: str,
+    @abstractmethod
+    async def create_goal_for_user(self, user_id: UUID,
                                    goal_data: dict) -> GoalSchema:
         raise NotImplementedError
 
-    async def update_goal(self, goal_id: int,
+    @abstractmethod
+    async def update_goal(self, user_id: UUID,
                           updated_data: dict) -> GoalSchema:
         raise NotImplementedError
 
-    async def delete_goal(self, goal_id: int) -> None:
+    @abstractmethod
+    async def delete_goal(self, user_id: UUID) -> None:
         raise NotImplementedError
 
 
 class SqlAlchemyGoalRepository(AbstractGoalRepository):
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession,
+                 user_repository: AbstractUserRepository):
         self._session = session
+        self._user_repository = user_repository
 
-    async def get_goals_for_user(self, user_id: str) -> list[GoalSchema]:
+    async def get_goals_for_user(self, user_id: UUID) -> GoalSchema:
         try:
             # Проверка существования пользователя
-            user = await self._session.get(User, user_id)
-            if not user:
-                raise NoResultFound
-
+            user = await self._user_repository.get_by_id(user_id)
             # Запрос целей пользователя
             query = select(Goal).filter(Goal.user_id == user_id)
-            result = await self._session.execute(query)
-            goals = result.scalars().all()
-
-            return [GoalSchema.from_orm(goal) for goal in goals]
-        except NoResultFound:
-            raise ValueError(f"Пользователь с id {user_id} не найден.")
+            result = (await self._session.execute(query)).scalar_one_or_none()
+            return GoalSchema.model_validate(result)
+        except UserNotFoundError:
+            # Обработка ситуации, когда пользователя не найдено
+            raise HTTPException(status_code=404,
+                                detail=f"User with id {user_id} not found.")
         except Exception as e:
+            # Обработка других исключений
             raise e
 
-    async def create_goal_for_user(self, user_id: str,
+    async def create_goal_for_user(self, user_id: UUID,
                                    goal_data: dict) -> GoalSchema:
         try:
             # Проверка существования пользователя
-            user = await self._session.get(User, user_id)
-            if not user:
-                raise NoResultFound
-
+            user = await self._user_repository.get_by_id(user_id)
             # Проверка ограничения символов в записях до 500
-            for key, value in goal_data.items():
-                if isinstance(value, str) and len(value) > 500:
-                    raise LengthError(
-                        f"Превышено ограничение на длину записи для поля {key}")
 
             # Проверка наличия целей у пользователя
             goal_count = await self._session.scalar(
-                select(func.count(Goal.id)).filter(Goal.user_id == user_id)
-            )
-
+                select(func.count(Goal.id)).filter(Goal.user_id == user_id))
             if goal_count > 0:
                 raise ValueError(f"У пользователя {user_id} уже есть цели")
 
@@ -74,24 +71,19 @@ class SqlAlchemyGoalRepository(AbstractGoalRepository):
             goal = Goal(**goal_data, user_id=user_id)
             self._session.add(goal)
             await self._session.commit()
-            return GoalSchema.from_orm(goal)
-        except NoResultFound:
-            raise ValueError(f"Пользователь с id {user_id} не найден.")
-        except LengthError as error:
-            await self._session.rollback()
-            raise error
+            return GoalSchema.model_validate(goal)
+        except UserNotFoundError:
+            # Обработка ситуации, когда пользователя не найдено
+            raise HTTPException(status_code=404,
+                                detail=f"User with id {user_id} not found.")
         except Exception as error:
-            await self._session.rollback()
             raise error
 
-    async def update_goal(self, user_id: str,
+    async def update_goal(self, user_id: UUID,
                           updated_data: dict) -> GoalSchema:
         try:
             # Проверка существования пользователя
-            user = await self._session.get(User, user_id)
-            if not user:
-                raise NoResultFound
-
+            user = await self._user_repository.get_by_id(user_id)
             # Проверка существования цели пользователя
             goal = await self._session.execute(
                 select(Goal).filter(Goal.user_id == user_id))
@@ -109,24 +101,34 @@ class SqlAlchemyGoalRepository(AbstractGoalRepository):
             # Обновленный объект Goal
             updated_goal = await self._session.execute(
                 select(Goal).filter(Goal.user_id == user_id))
-            return GoalSchema.from_orm(updated_goal.scalars().first())
+            return GoalSchema.model_validate(updated_goal.scalars().first())
+        except UserNotFoundError:
+            # Обработка ситуации, когда пользователя не найдено
+            raise HTTPException(status_code=404,
+                                detail=f"User with id {user_id} not found.")
         except NoResultFound:
             raise ValueError(
                 f"Пользователь с id {user_id} не найден или у него нет целей.")
         except Exception as error:
-            await self._session.rollback()
             raise error
 
-    async def delete_goal(self, user_id: str) -> None:
+    async def delete_goal(self, user_id: UUID) -> None:
+        # Проверка существования пользователя
+        user = await self._user_repository.get_by_id(user_id)
         try:
             goal = await self._session.execute(
                 select(Goal).filter(Goal.user_id == user_id))
             goal = goal.scalars().first()
-
             if not goal:
                 raise NoResultFound
 
             await self._session.delete(goal)
+        except UserNotFoundError:
+            # Обработка ситуации, когда пользователя не найдено
+            raise HTTPException(status_code=404,
+                                detail=f"User with id {user_id} not found.")
         except NoResultFound:
             raise ValueError(
                 f"Пользователь с id {user_id} не найден или у него нет целей.")
+        except Exception as error:
+            raise error

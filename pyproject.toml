@@ -13,7 +13,6 @@ pydantic = "^2.1.1"
 python-dotenv = "^1.0.0"
 httpx = "^0.24.1"
 gunicorn = "^21.2.0"
-pyjwt = { extras = ["crypto"], version = "^2.8.0" }
 orjson = "^3.9.2"
 uvicorn = "^0.23.1"
 redis = "^4.6.0"
@@ -21,6 +20,7 @@ pydantic-settings = "^2.0.2"
 sqlalchemy = { extras = ["asyncio"], version = "^2.0.25" }
 alembic = "^1.13.1"
 psycopg = { extras = ["binary"], version = "^3.1.17" }
+pyjwt = "^2.8.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -48,6 +48,7 @@ extend-exclude = [
     "src/database/migrations/versions/*.py",
 ]
 force-exclude = true
+
 
 [tool.ruff.lint]
 preview = true

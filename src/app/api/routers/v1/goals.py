@@ -8,7 +8,7 @@ from app.services.goals import GoalsService
 router = APIRouter(tags=["Goals"])
 
 
-@router.get("/goals/{user_id}", response_model=list[GoalSchema])
+@router.get("/goals/{user_id}", response_model=GoalSchema)
 async def get_goals_for_user(
         user_id: str,
         goals_service: GoalsService = Depends(create_goals_service),
@@ -16,8 +16,12 @@ async def get_goals_for_user(
     try:
         goals = await goals_service.get_goals_for_user(user_id)
         return goals
-    except ValueError as error:
-        raise HTTPException(status_code=404, detail=f"{error}")
+    except HTTPException as error:
+        # Прокидываем HTTPException напрямую
+        raise error
+    except Exception as error:
+        # Обработка других исключений
+        raise HTTPException(status_code=500, detail=str(error))
 
 
 @router.post("/goals/{user_id}", response_model=GoalSchema)

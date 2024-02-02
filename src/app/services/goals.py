@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories.goals import (AbstractGoalRepository,
-                                    SqlAlchemyGoalRepository)
+from app.repositories.goals import AbstractGoalRepository, \
+    SqlAlchemyGoalRepository
 from app.schemas.goals import GoalSchema
 
 
@@ -9,7 +9,7 @@ class GoalsService:
     def __init__(self, _goal_repository: AbstractGoalRepository) -> None:
         self._goal_repository = _goal_repository
 
-    async def get_goals_for_user(self, user_id: str) -> list[GoalSchema]:
+    async def get_goals_for_user(self, user_id: str) -> GoalSchema:
         return await self._goal_repository.get_goals_for_user(user_id)
 
     async def create_goal_for_user(self, user_id: str,

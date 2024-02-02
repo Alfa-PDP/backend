@@ -1,24 +1,110 @@
 from abc import ABC, abstractmethod
+from typing import Sequence
+from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import column_property
 
-from app.schemas.users import UserSchema
+from app.core.errors import UserNotFoundError
+from app.schemas.task_status import StatusSlugEnum
+from app.schemas.users import UserCreateSchema, UserFilterParams, \
+    UserWithTeamIdSchema, UserSchema
+from database.models.idp import Idp
+from database.models.status import Status
+from database.models.task import Task
 from database.models.user import User
+from database.models.user_team import UserTeam
+
+CompletedTasks = int
+AllTasks = int
 
 
 class AbstractUserRepository(ABC):
     @abstractmethod
-    async def get_all(self) -> list[UserSchema]:
+    async def get_all(self, filters: UserFilterParams) -> list[
+        UserWithTeamIdSchema]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def create(self, user_data: UserCreateSchema) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def count_completed_tasks_for_users(
+            self, users: tuple[UUID, ...]
+    ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_by_id(self, user_id: UUID) -> UserWithTeamIdSchema:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get(self, user_id: UUID) -> UserSchema:
         raise NotImplementedError
 
 
-class SqlAlchemyUserRepository(AbstractUserRepository):
+class SQLAlchemyUserRepository(AbstractUserRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def get_all(self) -> list[UserSchema]:
-        result = await self._session.execute(select(User))
-        users = result.fetchall()
+    async def get_all(self, filters: UserFilterParams) -> list[
+        UserWithTeamIdSchema]:
+        User.team_id = column_property(UserTeam.team_id, expire_on_flush=True)
+        query = select(User).join(UserTeam)
 
-        return [UserSchema.model_validate(user) for user in users]
+        if filters.team_id:
+            query = query.filter(UserTeam.team_id == filters.team_id)
+
+        results = (await self._session.execute(query)).scalars().all()
+
+        return [UserWithTeamIdSchema.model_validate(result) for result in
+                results]
+
+    async def create(self, user_data: UserCreateSchema) -> None:
+        user = User(**user_data.model_dump())
+        self._session.add(user)
+
+    async def count_completed_tasks_for_users(
+            self, users: tuple[UUID, ...]
+    ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
+        completed_tasks = func.count(Task.id).filter(
+            Status.slug == StatusSlugEnum.completed)
+        all_tasks = func.count(Task.id)
+
+        query = (
+            select(User.id, completed_tasks, all_tasks)
+            .join(Idp, onclause=Idp.user_id == User.id, isouter=True)
+            .join(Task, onclause=Task.idp_id == Idp.id, isouter=True)
+            .join(Status, onclause=Status.id == Task.status_id, isouter=True)
+            .where(User.id.in_(users))
+            .group_by(User.id)
+        )
+
+        results = (await self._session.execute(query)).tuples().all()
+        return results
+
+    async def get_by_id(self, user_id: UUID) -> UserWithTeamIdSchema:
+        User.team_id = column_property(UserTeam.team_id, expire_on_flush=True)
+        query = select(User).where(User.id == user_id).join(UserTeam)
+        result = (await self._session.execute(query)).scalar_one_or_none()
+
+        if not result:
+            raise UserNotFoundError
+
+        return UserWithTeamIdSchema.model_validate(result)
+
+    async def get(self, user_id: UUID) -> UserSchema:
+        try:
+            user = await self._session.get(User, user_id)
+            if not user:
+                raise NoResultFound(f"User with id {user_id} not found.")
+            return UserSchema.model_validate(user)
+        except NoResultFound as e:
+            # Обработка ситуации, когда пользователь не найден
+            raise UserNotFoundError(f"User with id {user_id} not found.")
+        except Exception as e:
+            # Другие исключения, которые могут возникнуть при работе с БД
+            raise
