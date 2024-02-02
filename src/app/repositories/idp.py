@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, distinct, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import IDPNotFoundError
@@ -16,6 +16,10 @@ class AbstractIDPRepository(ABC):
 
     @abstractmethod
     async def get_by_user_and_filter(self, user_id: UUID, filter: IDPFilter) -> IDPGetSchema:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def distinct_years(self) -> list[int]:
         raise NotImplementedError
 
 
@@ -36,3 +40,8 @@ class SQLAlchemyIDPRepository(AbstractIDPRepository):
             raise IDPNotFoundError
 
         return IDPGetSchema.model_validate(result)
+
+    async def distinct_years(self) -> list[int]:
+        query = select(distinct(Idp.year)).order_by(Idp.year)  # type: ignore
+        results = (await self._session.execute(query)).scalars().all()
+        return [result for result in results]
