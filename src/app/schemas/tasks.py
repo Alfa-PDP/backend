@@ -40,7 +40,6 @@ class TaskGetSchema(TaskBase):
     task_type: TaskType
     importance: ImportanceType
     status_id: UUID
-    status: TaskStatusSchema
 
 
 class TaskCreateSchema(TaskBase):
@@ -56,5 +55,6 @@ class TaskUpdateSchema(TaskBase):
     importance: ImportanceType
 
 
-class TaskWithCommentsGetSchema(TaskGetSchema):
+class TaskExtendedGetSchema(TaskGetSchema):
+    status: TaskStatusSchema
     comments: list[GetTaskCommentSchema]

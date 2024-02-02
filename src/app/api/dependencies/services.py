@@ -4,7 +4,13 @@ from fastapi import Depends
 
 from app.api.dependencies.clients import CacheClientDep
 from app.api.dependencies.configs import MainConfigDep
-from app.api.dependencies.repositories import IDPRepositoryDep, TaskRepositoryDep, TeamRepositoryDep, UserRepositoryDep
+from app.api.dependencies.repositories import (
+    IDPRepositoryDep,
+    TaskRepositoryDep,
+    TaskStatusRepositoryDep,
+    TeamRepositoryDep,
+    UserRepositoryDep,
+)
 from app.services.auth import AbstractAuthService, FakeAuthService
 from app.services.idp import IDPService
 from app.services.status import StatusService
@@ -26,11 +32,16 @@ UsersServiceDep = Annotated[UsersService, Depends(create_users_service)]
 def create_tasks_service(
     tasks_repository: TaskRepositoryDep,
     idp_repository: IDPRepositoryDep,
+    task_status_repository: TaskStatusRepositoryDep,
 ) -> TasksService:
     return TasksService(
         _task_repository=tasks_repository,
         _idp_repository=idp_repository,
+        _task_status_repository=task_status_repository,
     )
+
+
+TasksServiceDep = Annotated[TasksService, Depends(create_tasks_service)]
 
 
 def create_auth_service(config: MainConfigDep, team_repository: TeamRepositoryDep) -> AbstractAuthService:
