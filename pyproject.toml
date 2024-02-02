@@ -34,6 +34,7 @@ types-redis = "^4.6.0.3"
 pytest = "^7.4.4"
 sqlalchemy-utils = "^0.41.1"
 pytest-asyncio = "^0.23.3"
+polyfactory = "^2.14.1"
 
 
 [build-system]
@@ -64,7 +65,7 @@ ignore = ["E203"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = -1
-known-first-party = ["app", "database", "tests"]
+known-first-party = ["app", "database", "tests", "testdata"]
 
 [tool.mypy]
 ignore_missing_imports = true

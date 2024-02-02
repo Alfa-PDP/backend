@@ -3,9 +3,10 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager
+from sqlalchemy.orm import joinedload
 
-from app.schemas.tasks import TaskCreateSchema, TaskGetSchema, TaskUpdateSchema, TaskWithStatusSchema
+from app.schemas.tasks import TaskCreateSchema, TaskGetSchema, TaskUpdateSchema, TaskWithCommentsGetSchema
+from database.models.comment import Comment
 from database.models.task import Task
 
 
@@ -27,7 +28,11 @@ class AbstractTaskRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskWithStatusSchema]:
+    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskGetSchema]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_all_by_idp_id_with_status_and_comments(self, idp_id: UUID) -> list[TaskWithCommentsGetSchema]:
         raise NotImplementedError
 
 
@@ -68,7 +73,19 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         await self._session.delete(obj_id)
         await self._session.commit()
 
-    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskWithStatusSchema]:
-        query = select(Task).join(Task.status).where(Task.idp_id == idp_id).options(contains_eager(Task.status))
+    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskGetSchema]:
+        query = select(Task).where(Task.idp_id == idp_id).options(joinedload(Task.status))
         results = (await self._session.execute(query)).scalars().all()
-        return [TaskWithStatusSchema.model_validate(result) for result in results]
+        return [TaskGetSchema.model_validate(result) for result in results]
+
+    async def get_all_by_idp_id_with_status_and_comments(self, idp_id: UUID) -> list[TaskWithCommentsGetSchema]:
+        query = (
+            select(Task)
+            .where(Task.idp_id == idp_id)
+            .options(
+                joinedload(Task.status),
+                joinedload(Task.comments).joinedload(Comment.user),
+            )
+        )
+        results = (await self._session.execute(query)).scalars().unique().all()
+        return [TaskWithCommentsGetSchema.model_validate(result) for result in results]
