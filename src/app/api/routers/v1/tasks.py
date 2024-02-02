@@ -12,28 +12,28 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 logger = logging.getLogger().getChild("task-router")
 
 
-@router.get("", summary="Получить задачу по id", response_model=TaskGetSchema, status_code=status.HTTP_200_OK)
+@router.get("/{task_id}", summary="Получить задачу по id", response_model=TaskGetSchema, status_code=status.HTTP_200_OK)
 async def _get_task(task_id: UUID, tasks_service: TaskRepositoryDep) -> TaskGetSchema:
     logger.debug("Getting Task by id")
-    return await tasks_service.get_task(task_id=task_id)
+    return await tasks_service.get(task_id=task_id)
 
 
 @router.post("", summary="Создание задачи", response_model=TaskGetSchema, status_code=status.HTTP_201_CREATED)
 async def _create_task(user_id: UUID, task_data: TaskCreateSchema, tasks_service: TaskRepositoryDep) -> TaskGetSchema:
     logger.debug("Create Task")
-    return await tasks_service.create_task(user_id, task_data)
+    return await tasks_service.create(task_data)
 
 
 @router.put("", summary="Редактирование поста", response_model=TaskGetSchema, status_code=status.HTTP_201_CREATED)
 async def _update_task(task_id: UUID, task_data: TaskUpdateSchema, tasks_service: TaskRepositoryDep) -> TaskGetSchema:
     logger.debug("Update Task")
-    return await tasks_service.update_task(task_id, task_data)
+    return await tasks_service.update(task_id, task_data)
 
 
 @router.delete("", summary="Удаление задачи", status_code=status.HTTP_204_NO_CONTENT)
-async def _delete_task(task_id: UUID, tasks_service: TaskRepositoryDep) -> dict:
+async def _delete_task(task_id: UUID, tasks_service: TaskRepositoryDep) -> None:
     logger.debug("Delete Task")
-    return await tasks_service.delete(task_id)
+    await tasks_service.delete(task_id)
 
 
 @router.get(

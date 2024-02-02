@@ -36,8 +36,8 @@ class TaskGetSchema(TaskBase):
     task_type: TaskType
     importance: ImportanceType
     status_id: int
-    items: TaskStatusSchema
-    # schema: list[TaskCommentSchema]
+    status: TaskStatusSchema
+    # comments: list[TaskCommentSchema]
 
 
 class TaskCreateSchema(TaskBase):

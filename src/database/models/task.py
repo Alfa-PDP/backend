@@ -8,6 +8,7 @@ from database.models.declarative_base import BaseModel, Column
 from database.models.mixins import IdMixin, TsMixinCreated, TsMixinUpdated
 
 if TYPE_CHECKING:
+    from database.models.comment import Comment
     from database.models.status import Status
 
 
@@ -30,6 +31,7 @@ class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
     )
 
     status: Mapped["Status"] = relationship()
+    comments: Mapped["Comment"] = relationship(uselist=True)
 
     def __repr__(self) -> str:
         return f"Task({self.id}, {self.name})"
