@@ -1,11 +1,11 @@
 from functools import cached_property
 
 from app.schemas.task_status import StatusSlugEnum
-from app.schemas.tasks import TaskWithStatusSchema
+from app.schemas.tasks import TaskGetSchema
 
 
 class UserProgress:
-    def __init__(self, tasks: list[TaskWithStatusSchema]) -> None:
+    def __init__(self, tasks: list[TaskGetSchema]) -> None:
         self._tasks = tasks
 
     @cached_property

@@ -1,12 +1,16 @@
 import logging
+from uuid import UUID
 
 from fastapi import APIRouter, status
 
 from app.api.dependencies.auth import AuthorizeUserDep
 from app.api.dependencies.repositories import UserRepositoryDep
 from app.api.dependencies.services import UsersServiceDep
-from app.api.request_model.users import UserQueryParamsDep
+from app.api.request_model.users import UserQueryParamsDep, UserTasksQueryParamsDep
+from app.api.routers.v1.tasks import TasksServiceDep
 from app.schemas.auth import AuthData
+from app.schemas.idp import IDPFilter
+from app.schemas.tasks import TaskWithCommentsGetSchema
 from app.schemas.users import CreateUserSchema, GetUserWithProgressSchema, UserFilterParams, UserOrderParams
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -45,3 +49,17 @@ async def create_user(user_data: CreateUserSchema, users_repository: UserReposit
 )
 async def get_user(auth_data: AuthorizeUserDep) -> AuthData:
     return auth_data
+
+
+@router.get(
+    "/{user_id}/tasks",
+    summary="Задачи сотрудника",
+    response_model=list[TaskWithCommentsGetSchema],
+    status_code=status.HTTP_200_OK,
+)
+async def get_user_tasks(
+    user_id: UUID, query_param: UserTasksQueryParamsDep, tasks_service: TasksServiceDep
+) -> list[TaskWithCommentsGetSchema]:
+    logger.debug(f"Get user's {user_id} tasks.")
+    filters = IDPFilter(year=query_param.year)
+    return await tasks_service.get_all_by_user_id(user_id, filters)
