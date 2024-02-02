@@ -33,12 +33,13 @@ class ImportanceType(StrEnum):
 
 
 class TaskGetSchema(TaskBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     idp_id: UUID
     task_type: TaskType
     importance: ImportanceType
     status_id: UUID
-    status: TaskStatusSchema
 
 
 class TaskCreateSchema(TaskBase):
@@ -54,5 +55,6 @@ class TaskUpdateSchema(TaskBase):
     importance: ImportanceType
 
 
-class TaskWithCommentsGetSchema(TaskGetSchema):
+class TaskExtendedGetSchema(TaskGetSchema):
+    status: TaskStatusSchema
     comments: list[GetTaskCommentSchema]

@@ -10,6 +10,7 @@ from database.models.status import Status
 
 if TYPE_CHECKING:
     from database.models.comment import Comment
+    from database.models.status import Status
 
 
 class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):

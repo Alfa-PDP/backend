@@ -6,6 +6,7 @@ from app.api.dependencies.clients import DbSessionDep
 from app.repositories.comment import AbstractTaskCommentRepository, SQLAlchemyTaskCommentRepository
 from app.repositories.idp import AbstractIDPRepository, SQLAlchemyIDPRepository
 from app.repositories.tasks import AbstractTaskRepository, SQLAlchemyTaskRepository
+from app.repositories.tasks_status import AbstractTaskStatusRepository, SQLAlchemyTaskStatusRepository
 from app.repositories.team import AbstractTeamRepository, SQLAlchemyTeamRepository
 from app.repositories.users import AbstractUserRepository, SQLAlchemyUserRepository
 
@@ -43,3 +44,10 @@ def get_comment_repository(db_session: DbSessionDep) -> AbstractTaskCommentRepos
 
 
 TaskCommentRepositoryDep = Annotated[AbstractTaskCommentRepository, Depends(get_comment_repository)]
+
+
+def get_task_status_repository(db_session: DbSessionDep) -> AbstractTaskStatusRepository:
+    return SQLAlchemyTaskStatusRepository(db_session)
+
+
+TaskStatusRepositoryDep = Annotated[AbstractTaskStatusRepository, Depends(get_task_status_repository)]
