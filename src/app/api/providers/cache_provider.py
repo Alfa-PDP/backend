@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from redis.asyncio import Redis
 
 from app.api.providers.mixins import ShutDownProviderMixin, StartUpProviderMixin
-from app.core.errors import ApplicationError
+from app.core import errors
 
 
 class RedisProvider(StartUpProviderMixin, ShutDownProviderMixin):
@@ -17,7 +17,7 @@ class RedisProvider(StartUpProviderMixin, ShutDownProviderMixin):
         self.redis_client: Redis = Redis(host=self.host, port=self.port)
 
         if not await self.redis_client.ping():
-            raise ApplicationError()
+            raise errors.ApplicationError
 
         setattr(self.app.state, "async_redis_client", self.redis_client)
 

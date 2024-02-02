@@ -5,7 +5,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.core.errors import TaskNotFoundError
+from app.core import errors
 from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskGetSchema, TaskUpdateSchema
 from database.models.comment import Comment
 from database.models.task import Task
@@ -50,7 +50,7 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         query = select(Task).where(Task.id == obj_id)
         result = (await self._session.execute(query)).scalars().first()
         if result is None:
-            raise TaskNotFoundError
+            raise errors.TaskNotFoundError
         return TaskGetSchema.model_validate(result)
 
     async def get_with_status_and_comments(self, obj_id: UUID) -> TaskExtendedGetSchema:
@@ -65,7 +65,7 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
 
         result = (await self._session.execute(query)).scalars().first()
         if result is None:
-            raise TaskNotFoundError
+            raise errors.TaskNotFoundError
         return TaskExtendedGetSchema.model_validate(result)
 
     async def create(self, obj_in: TaskCreateSchema, **kwargs: dict) -> TaskGetSchema:
@@ -81,15 +81,15 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         result = (await self._session.execute(query)).scalars().first()
         await self._session.commit()
         if not result:
-            raise TaskNotFoundError
+            raise errors.TaskNotFoundError
         return TaskGetSchema.model_validate(result)
 
     async def delete(self, obj_id: UUID) -> None:
         query = delete(Task).where(Task.id == obj_id).returning(Task)
         result = (await self._session.execute(query)).scalars().first()
-        await self._session.commit()
         if not result:
-            raise TaskNotFoundError
+            raise errors.TaskNotFoundError
+        await self._session.commit()
 
     async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskGetSchema]:
         query = select(Task).where(Task.idp_id == idp_id).options(joinedload(Task.status))

@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import column_property
 
-from app.core.errors import UserNotFoundError
+from app.core import errors
 from app.schemas.task_status import StatusSlugEnum
 from app.schemas.users import CreateUserSchema, GetUserSchema, UserFilterParams
 from database.models.idp import Idp
@@ -82,6 +82,6 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
         result = (await self._session.execute(query)).scalar_one_or_none()
 
         if not result:
-            raise UserNotFoundError
+            raise errors.UserNotFoundError
 
         return GetUserSchema.model_validate(result)

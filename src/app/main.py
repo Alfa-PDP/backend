@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from app.api.dependencies.configs import get_main_config
+from app.api.exceptions.main import setup_exception_handlers
 from app.api.middlewares.main import setup_middleware
 from app.api.providers.main import setup_providers
 from app.api.routers.main import setup_routers
@@ -21,6 +22,7 @@ def create_app(config: MainConfig) -> FastAPI:
 
     setup_logging(config)
     setup_providers(app, config)
+    setup_exception_handlers(app)
     setup_routers(app, config)
     setup_middleware(app)
     return app

@@ -73,7 +73,7 @@ disallow_untyped_defs = true
 explicit_package_bases = true
 
 [[tool.mypy.overrides]]
-module = ["src.database.migrations.*"]
+module = ["src.database.migrations.*", "src.app.core.errors.*"]
 ignore_errors = true
 
 

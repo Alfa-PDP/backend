@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import and_, distinct, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import IDPNotFoundError
+from app.core import errors
 from app.schemas.idp import IDPCreateSchema, IDPFilter, IDPGetSchema
 from database.models.idp import Idp
 
@@ -35,7 +35,7 @@ class SQLAlchemyIDPRepository(AbstractIDPRepository):
         query = select(Idp).where(Idp.id == idp_id)
         result = (await self._session.execute(query)).scalars().first()
         if not result:
-            raise IDPNotFoundError
+            raise errors.IDPNotFoundError
         return IDPGetSchema.model_validate(result)
 
     async def create(self, ipd_data: IDPCreateSchema) -> None:
@@ -48,7 +48,7 @@ class SQLAlchemyIDPRepository(AbstractIDPRepository):
         result = (await self._session.execute(query)).scalars().first()
 
         if not result:
-            raise IDPNotFoundError
+            raise errors.IDPNotFoundError
 
         return IDPGetSchema.model_validate(result)
 

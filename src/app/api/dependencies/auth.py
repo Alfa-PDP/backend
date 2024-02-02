@@ -27,7 +27,7 @@ async def authorize_user(
     access_token: str | None = Security(api_key_header),
 ) -> AuthData:
     if not access_token:
-        raise errors.BaseForbiddenError
+        raise errors.ForbiddenError
 
     payload = _validate_token(access_token, config.auth)
 
