@@ -9,7 +9,7 @@ from sqlalchemy.orm import column_property
 
 from app.core.errors import UserNotFoundError
 from app.schemas.task_status import StatusSlugEnum
-from app.schemas.users import UserCreateSchema, UserFilterParams, UserSchema, UserWithTeamIdSchema
+from app.schemas.users import CreateUserSchema, GetUserSchema, UserFilterParams
 from database.models.idp import Idp
 from database.models.status import Status
 from database.models.task import Task
@@ -40,7 +40,7 @@ class AbstractUserRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get(self, user_id: UUID) -> UserSchema:
+    async def get(self, user_id: UUID) -> GetUserSchema:
         raise NotImplementedError
 
 
@@ -89,14 +89,14 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
         if not result:
             raise UserNotFoundError
 
-        return UserWithTeamIdSchema.model_validate(result)
+        return GetUserSchema.model_validate(result)
 
-    async def get(self, user_id: UUID) -> UserSchema:
+    async def get(self, user_id: UUID) -> GetUserSchema:
         try:
             user = await self._session.get(User, user_id)
             if not user:
                 raise NoResultFound(f"User with id {user_id} not found.")
-            return UserSchema.model_validate(user)
+            return GetUserSchema.model_validate(user)
         except NoResultFound:
             # Обработка ситуации, когда пользователь не найден
             raise UserNotFoundError(f"User with id {user_id} not found.")
