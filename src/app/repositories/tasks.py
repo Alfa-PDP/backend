@@ -23,7 +23,7 @@ class AbstractTaskRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def delete(self, obj_id: UUID) -> dict:
+    async def delete(self, obj_id: UUID) -> None:
         raise NotImplementedError
 
     @abstractmethod
@@ -38,7 +38,10 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
 
     async def get(self, obj_id: UUID) -> TaskGetSchema:
         obj = await self._session.execute(select(self._model).where(self._model.id == obj_id))
-        return obj.scalars().first()
+        result = obj.scalars().first()
+        if result is None:
+            raise FileNotFoundError
+        return TaskGetSchema.model_validate(result)
 
     async def create(self, obj_in: TaskCreateSchema, **kwargs: dict) -> TaskGetSchema:
         obj_input = obj_in.model_dump()
@@ -46,15 +49,24 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         self._session.add(db_obj)
         await self._session.commit()
         await self._session.refresh(db_obj)
-        return db_obj
+        return TaskGetSchema.model_validate(db_obj)
 
     async def update(self, obj_id: UUID, obj_in: TaskUpdateSchema) -> TaskGetSchema:
-        ...
+        db_obj = await self._session.execute(select(self._model).where(self._model.id == obj_id))
+        obj_data = db_obj.scalars().first()
+        if obj_data is None:
+            raise FileNotFoundError
+        update_data = obj_in.model_dump(exclude_unset=True)
+        for field in obj_data:
+            if field in update_data:
+                setattr(db_obj, field, obj_in[field])
+            self._session.add(db_obj)
+        await self._session.commit()
+        return TaskGetSchema.model_validate(obj_data)
 
-    async def delete(self, obj_id: UUID) -> dict:
+    async def delete(self, obj_id: UUID) -> None:
         await self._session.delete(obj_id)
         await self._session.commit()
-        return {"details": f"Task {obj_id} deleted."}
 
     async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskWithStatusSchema]:
         query = select(Task).join(Task.status).where(Task.idp_id == idp_id).options(contains_eager(Task.status))

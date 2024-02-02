@@ -29,6 +29,8 @@ class ImportanceType(StrEnum):
 
 
 class TaskGetSchema(TaskBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     idp_id: int
     task_type: TaskType
