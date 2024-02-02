@@ -35,6 +35,7 @@ class SQLAlchemyIDPRepository(AbstractIDPRepository):
     async def get_by_user_and_filter(self, user_id: UUID, filter: IDPFilter) -> IDPGetSchema:
         query = select(Idp).where(and_(Idp.user_id == user_id, Idp.year == filter.year))
         result = (await self._session.execute(query)).scalars().first()
+
         if not result:
             raise IDPNotFoundError
 

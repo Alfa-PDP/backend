@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.tasks import TaskWithStatusSchema  # noqa
+from app.schemas.tasks import TaskGetSchema
 
 
 class IDPCreateSchema(BaseModel):
@@ -38,4 +38,4 @@ class IDPGetExtendedSchema(IDPGetSchema):
     team_id: UUID
     task_count: int
     task_progress: int
-    tasks: list[TaskWithStatusSchema]
+    tasks: list[TaskGetSchema]
