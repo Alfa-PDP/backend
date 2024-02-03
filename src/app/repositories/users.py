@@ -1,14 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Sequence
 from uuid import UUID
 
-from sqlalchemy import and_, func, select
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import column_property, contains_eager
 
 from app.core import errors
-from app.schemas.task_status import TaskStatusSlugEnum
 from app.schemas.users import CreateUserSchema, GetUserSchema, UserFilterParams, UserWithTasksSchema
 from database.models.idp import Idp
 from database.models.status import Status
@@ -30,17 +27,7 @@ class AbstractUserRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def count_completed_tasks_for_users(
-        self, users: tuple[UUID, ...]
-    ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
-        raise NotImplementedError
-
-    @abstractmethod
     async def get_by_id(self, user_id: UUID) -> GetUserSchema:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get(self, user_id: UUID) -> GetUserSchema:
         raise NotImplementedError
 
 
@@ -72,24 +59,6 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
         user = User(**user_data.model_dump())
         self._session.add(user)
 
-    async def count_completed_tasks_for_users(
-        self, users: tuple[UUID, ...]
-    ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
-        completed_tasks = func.count(Task.id).filter(Status.slug == TaskStatusSlugEnum.completed)
-        all_tasks = func.count(Task.id)
-
-        query = (
-            select(User.id, completed_tasks, all_tasks)
-            .join(Idp, onclause=Idp.user_id == User.id, isouter=True)
-            .join(Task, onclause=Task.idp_id == Idp.id, isouter=True)
-            .join(Status, onclause=Status.id == Task.status_id, isouter=True)
-            .where(User.id.in_(users))
-            .group_by(User.id)
-        )
-
-        results = (await self._session.execute(query)).tuples().all()
-        return results
-
     async def get_by_id(self, user_id: UUID) -> GetUserSchema:
         User.team_id = column_property(UserTeam.team_id, expire_on_flush=True)
         query = select(User).where(User.id == user_id).join(UserTeam)
@@ -99,16 +68,3 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
             raise errors.UserNotFoundError
 
         return GetUserSchema.model_validate(result)
-
-    async def get(self, user_id: UUID) -> GetUserSchema:
-        try:
-            user = await self._session.get(User, user_id)
-            if not user:
-                raise NoResultFound(f"User with id {user_id} not found.")
-            return GetUserSchema.model_validate(user)
-        except NoResultFound:
-            # Обработка ситуации, когда пользователь не найден
-            raise errors.UserNotFoundError(f"User with id {user_id} not found.")
-        except Exception:
-            # Другие исключения, которые могут возникнуть при работе с БД
-            raise errors.ApplicationError

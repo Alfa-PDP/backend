@@ -5,9 +5,10 @@ from fastapi import APIRouter, status
 
 from app.api.dependencies.auth import AuthorizeUserDep
 from app.api.dependencies.repositories import UserRepositoryDep
-from app.api.dependencies.services import TasksServiceDep, UsersServiceDep
+from app.api.dependencies.services import GoalsServiceDep, TasksServiceDep, UsersServiceDep
 from app.api.request_model.users import UserQueryParamsDep, UserTasksQueryParamsDep
 from app.schemas.auth import AuthData
+from app.schemas.goals import GoalSchema
 from app.schemas.idp import IDPFilter
 from app.schemas.tasks import TaskExtendedGetSchema
 from app.schemas.users import CreateUserSchema, GetUserWithProgressSchema, UserFilterParams, UserOrderParams
@@ -62,3 +63,17 @@ async def get_user_tasks(
     logger.debug(f"Get user's {user_id} tasks.")
     filters = IDPFilter(year=query_param.year)
     return await tasks_service.get_all_by_user_id(user_id, filters)
+
+
+@router.get(
+    "/{user_id}/goals",
+    summary="Цели сотрудника",
+    response_model=GoalSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def get_goals_for_user(
+    user_id: UUID,
+    goals_service: GoalsServiceDep,
+) -> GoalSchema:
+    goals = await goals_service.get_goal_for_user(user_id)
+    return goals
