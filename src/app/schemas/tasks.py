@@ -40,6 +40,7 @@ class TaskGetSchema(TaskBase):
     task_type: TaskType
     importance: ImportanceType
     status_id: UUID
+    status: TaskStatusSchema
 
 
 class TaskCreateSchema(TaskBase):

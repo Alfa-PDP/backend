@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import asc, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager
+from sqlalchemy.orm import joinedload
 
 from app.schemas.comment import CreateTaskCommentSchema, GetTaskCommentSchema
 from database.models.comment import Comment
@@ -31,11 +31,10 @@ class SQLAlchemyTaskCommentRepository(AbstractTaskCommentRepository):
     async def get_all_by_task_id(self, task_id: UUID) -> list[GetTaskCommentSchema]:
         query = (
             select(Comment)
-            .join(Comment.user)
             .where(Comment.task_id == task_id)
             .order_by(asc(Comment.created_at))
-            .options(contains_eager(Comment.user))
+            .options(joinedload(Comment.user))
         )
 
-        results = (await self._session.execute(query)).scalars().all()
+        results = (await self._session.execute(query)).scalars().unique().all()
         return [GetTaskCommentSchema.model_validate(result) for result in results]
