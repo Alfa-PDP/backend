@@ -1,66 +1,49 @@
-from fastapi import APIRouter, Depends, HTTPException
+from uuid import UUID
 
-from app.api.dependencies.services import create_goals_service
-from app.schemas.goals import GoalSchema
-from app.services.goals import GoalsService
+from fastapi import APIRouter, status
 
-router = APIRouter(tags=["Goals"])
+from app.api.dependencies.services import GoalsServiceDep
+from app.schemas.goals import CreateGoal, GoalSchema, UpdateGoal
 
-
-@router.get("/goals/{user_id}", response_model=GoalSchema)
-async def get_goals_for_user(
-    user_id: str,
-    goals_service: GoalsService = Depends(create_goals_service),
-) -> GoalSchema:
-    try:
-        goals = await goals_service.get_goals_for_user(user_id)
-        return goals
-    except HTTPException as error:
-        # Прокидываем HTTPException напрямую
-        raise error
-    except Exception as error:
-        # Обработка других исключений
-        raise HTTPException(status_code=500, detail=str(error))
+router = APIRouter(tags=["Goals"], prefix="/goals")
 
 
-@router.post("/goals/{user_id}", response_model=GoalSchema)
+@router.post(
+    "",
+    summary="Создать цель",
+    response_model=GoalSchema,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_goal_for_user(
-    user_id: str,
-    goal_data: dict,
-    goals_service: GoalsService = Depends(create_goals_service),
+    goal_data: CreateGoal,
+    goals_service: GoalsServiceDep,
 ) -> GoalSchema:
-    try:
-        goal = await goals_service.create_goal_for_user(user_id, goal_data)
-        return goal
-    except ValueError as error:
-        raise HTTPException(status_code=404, detail=f"{error}")
-    # except LengthError as error:
-    #     raise HTTPException(status_code=404, detail=f"{error}")
+    goal = await goals_service.create_goal_for_user(goal_data)
+    return goal
 
 
-@router.patch("/goals/{user_id}", response_model=GoalSchema)
+@router.patch(
+    "/{goal_id}",
+    summary="Редактировать цель",
+    response_model=GoalSchema,
+    status_code=status.HTTP_200_OK,
+)
 async def patch_goal(
-    user_id: str,
-    updated_data: dict,
-    goals_service: GoalsService = Depends(create_goals_service),
+    goal_id: UUID,
+    updated_data: UpdateGoal,
+    goals_service: GoalsServiceDep,
 ) -> GoalSchema:
-    try:
-        goal = await goals_service.update_goal(user_id, updated_data)
-        if goal:
-            return goal
-    except ValueError as error:
-        raise HTTPException(status_code=404, detail=f"{error}")
+    goal = await goals_service.update_goal(goal_id, updated_data)
+    return goal
 
 
-@router.delete("/goals/{user_id}", status_code=204)
+@router.delete(
+    "/{goal_id}",
+    summary="Удалить цель",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def delete_goal(
-    user_id: str,
-    goals_service: GoalsService = Depends(create_goals_service),
+    goal_id: UUID,
+    goals_service: GoalsServiceDep,
 ) -> None:
-    try:
-        await goals_service.delete_goal(user_id)
-        return
-    except ValueError as error:
-        raise HTTPException(status_code=404, detail=f"{error}")
-    except Exception as error:
-        raise HTTPException(status_code=404, detail=f"{error}")
+    await goals_service.delete_goal(goal_id)

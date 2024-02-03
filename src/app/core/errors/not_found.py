@@ -11,6 +11,7 @@ class NotFoundErrorMessages(BaseErrorEnum):
     idp_not_found = ERROR_CODE, "ИПР сотрудника не найден"
     task_not_found = ERROR_CODE, "Задача не найдена"
     task_status_not_found = ERROR_CODE, "Статус не найден"
+    goal_not_found = ERROR_CODE, "Цель не найдена"
 
 
 class BaseNotFoundError(ApplicationError):
@@ -46,3 +47,8 @@ class TaskNotFoundError(BaseNotFoundError):
 class TaskStatusNotFoundError(BaseNotFoundError):
     error_code: str = NotFoundErrorMessages.task_status_not_found.error_code
     error_message: str = NotFoundErrorMessages.task_status_not_found.error_message
+
+
+class GoalNotFounError(BaseNotFoundError):
+    error_code: str = NotFoundErrorMessages.goal_not_found.error_code
+    error_message: str = NotFoundErrorMessages.goal_not_found.error_message

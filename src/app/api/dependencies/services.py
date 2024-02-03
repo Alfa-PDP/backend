@@ -2,16 +2,16 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.api.dependencies.clients import CacheClientDep, DbSessionDep
+from app.api.dependencies.clients import CacheClientDep
 from app.api.dependencies.configs import MainConfigDep
 from app.api.dependencies.repositories import (
+    GoalRepositoryDep,
     IDPRepositoryDep,
     TaskRepositoryDep,
     TaskStatusRepositoryDep,
     TeamRepositoryDep,
     UserRepositoryDep,
 )
-from app.repositories.goals import SqlAlchemyGoalRepository
 from app.services.auth import AbstractAuthService, FakeAuthService
 from app.services.goals import GoalsService
 from app.services.idp import IDPService
@@ -67,10 +67,17 @@ def get_idp_service(
     )
 
 
-def create_goals_service(db_session: DbSessionDep, user_repository: UserRepositoryDep) -> GoalsService:
+IDPServiceDep = Annotated[IDPService, Depends(get_idp_service)]
+
+
+def get_goals_service(
+    user_repository: UserRepositoryDep,
+    goals_repository: GoalRepositoryDep,
+) -> GoalsService:
     return GoalsService(
-        _goal_repository=SqlAlchemyGoalRepository(db_session, user_repository),
+        _goal_repository=goals_repository,
+        _user_repository=user_repository,
     )
 
 
-IDPServiceDep = Annotated[IDPService, Depends(get_idp_service)]
+GoalsServiceDep = Annotated[GoalsService, Depends(get_goals_service)]
