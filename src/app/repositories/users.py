@@ -3,7 +3,6 @@ from typing import Sequence
 from uuid import UUID
 
 from sqlalchemy import func, select
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import column_property
 
@@ -37,10 +36,6 @@ class AbstractUserRepository(ABC):
 
     @abstractmethod
     async def get_by_id(self, user_id: UUID) -> GetUserSchema:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get(self, user_id: UUID) -> GetUserSchema:
         raise NotImplementedError
 
 
@@ -91,15 +86,3 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
 
         return GetUserSchema.model_validate(result)
 
-    async def get(self, user_id: UUID) -> GetUserSchema:
-        try:
-            user = await self._session.get(User, user_id)
-            if not user:
-                raise NoResultFound(f"User with id {user_id} not found.")
-            return GetUserSchema.model_validate(user)
-        except NoResultFound:
-            # Обработка ситуации, когда пользователь не найден
-            raise errors.UserNotFoundError(f"User with id {user_id} not found.")
-        except Exception:
-            # Другие исключения, которые могут возникнуть при работе с БД
-            raise errors.ApplicationError
