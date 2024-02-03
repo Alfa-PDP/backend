@@ -1,11 +1,15 @@
 from database.models.goal import Goal
-from testdata.factories.common_data import user_ids, goal_ids, goal_goal_name, goal_employee_side_plus, \
-    goal_employee_side_minus
+from testdata.factories.common_data import (
+    goal_employee_side_minus,
+    goal_employee_side_plus,
+    goal_goal_name,
+    goal_ids,
+    user_ids,
+)
 from testdata.factories.factory_base import BaseSQLAlchemyFactory
 
 
 class GoalFactory(BaseSQLAlchemyFactory[Goal]):
-
     @classmethod
     def build_all(cls) -> list[Goal]:
         return [

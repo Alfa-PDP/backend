@@ -13,7 +13,7 @@ FACTORIES = [
     factories.IDPFactory,
     factories.TaskFactory,
     factories.TaskCommentFactory,
-    factories.GoalFactory
+    factories.GoalFactory,
 ]
 
 
