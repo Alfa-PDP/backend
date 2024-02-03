@@ -4,6 +4,7 @@ from fastapi import Depends
 
 from app.api.dependencies.clients import DbSessionDep
 from app.repositories.comment import AbstractTaskCommentRepository, SQLAlchemyTaskCommentRepository
+from app.repositories.goals import AbstractGoalRepository, SqlAlchemyGoalRepository
 from app.repositories.idp import AbstractIDPRepository, SQLAlchemyIDPRepository
 from app.repositories.tasks import AbstractTaskRepository, SQLAlchemyTaskRepository
 from app.repositories.tasks_status import AbstractTaskStatusRepository, SQLAlchemyTaskStatusRepository
@@ -51,3 +52,10 @@ def get_task_status_repository(db_session: DbSessionDep) -> AbstractTaskStatusRe
 
 
 TaskStatusRepositoryDep = Annotated[AbstractTaskStatusRepository, Depends(get_task_status_repository)]
+
+
+def get_goal_repository(db_session: DbSessionDep) -> AbstractGoalRepository:
+    return SqlAlchemyGoalRepository(db_session)
+
+
+GoalRepositoryDep = Annotated[AbstractGoalRepository, Depends(get_goal_repository)]
