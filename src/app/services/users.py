@@ -1,46 +1,48 @@
 from dataclasses import dataclass
-from typing import Sequence
-from uuid import UUID
+from typing import Generator
 
 from app.domain.user_progress import UserProgress
 from app.repositories.users import AbstractUserRepository
-from app.schemas.users import GetUserWithProgressSchema, UserFilterParams, UserOrderParams
+from app.schemas.users import GetUserWithProgressSchema, UserFilterParams, UserOrderParams, UserWithTasksSchema
 
 
 @dataclass
 class UsersService:
     _user_repository: AbstractUserRepository
 
-    async def get_users(self, filters: UserFilterParams, order: UserOrderParams) -> list[GetUserWithProgressSchema]:
-        users = await self._user_repository.get_all(filters)
-        users_ids = {user.id: [0, 0] for user in users}
-        user_ids_with_tasks = await self._user_repository.count_completed_tasks_for_users(tuple(users_ids.keys()))
-        self._aggregate_users_info(users_ids, user_ids_with_tasks)
+    async def get_users_with_progress(
+        self,
+        filters: UserFilterParams,
+        order: UserOrderParams,
+    ) -> list[GetUserWithProgressSchema]:
+        users = await self._user_repository.get_all_with_tasks(filters)
 
-        users_gen = (
-            GetUserWithProgressSchema(
-                **user.model_dump(), task_count=users_ids[user.id][0], task_progress=users_ids[user.id][1]
+        users_generator = self._generate_users_with_progress(users)
+        sorted_users = self._sort_users(users_generator, order)
+
+        return sorted_users
+
+    def _generate_users_with_progress(
+        self,
+        users: list[UserWithTasksSchema],
+    ) -> Generator[GetUserWithProgressSchema, None, None]:
+        for user in users:
+            user_progress = UserProgress(user.tasks)
+            user_with_progress = GetUserWithProgressSchema(
+                **user.model_dump(),
+                task_count=user_progress.task_count,
+                task_progress=user_progress.progress,
             )
-            for user in users
-        )
+            yield user_with_progress
 
+    def _sort_users(
+        self,
+        users_generator: Generator[GetUserWithProgressSchema, None, None],
+        order: UserOrderParams,
+    ) -> list[GetUserWithProgressSchema]:
         result = sorted(
-            users_gen,
+            users_generator,
             key=lambda user: getattr(user, order.sort_by, user.family_name),
             reverse=order.is_desc,
         )
-
         return result
-
-    def _aggregate_users_info(
-        self, users_ids: dict[UUID, list[int]], user_ids_with_tasks: Sequence[tuple[UUID, int, int]]
-    ) -> dict[UUID, list[int]]:
-        for info in user_ids_with_tasks:
-            user_id = info[0]
-            completed_tasks = info[1]
-            all_tasks = info[2]
-
-            users_ids[user_id][0] = all_tasks
-            users_ids[user_id][1] = UserProgress.calculate(completed_tasks, all_tasks)
-
-        return users_ids

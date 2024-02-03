@@ -3,15 +3,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.dependencies.services import create_status_service
+from app.api.dependencies.services import create_api_status_service
 from app.schemas.api_status import APIStatusSchema
-from app.services.status import StatusService
+from app.services.api_status import APIStatusService
 
 router = APIRouter(prefix="/status", tags=["Status"])
 
 logger = logging.getLogger().getChild("status-router")
 
-StatusServiceDep = Annotated[StatusService, Depends(create_status_service)]
+StatusServiceDep = Annotated[APIStatusService, Depends(create_api_status_service)]
 
 
 @router.get(

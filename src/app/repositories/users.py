@@ -2,14 +2,14 @@ from abc import ABC, abstractmethod
 from typing import Sequence
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import column_property
+from sqlalchemy.orm import column_property, contains_eager
 
 from app.core import errors
-from app.schemas.task_status import StatusSlugEnum
-from app.schemas.users import CreateUserSchema, GetUserSchema, UserFilterParams
+from app.schemas.task_status import TaskStatusSlugEnum
+from app.schemas.users import CreateUserSchema, GetUserSchema, UserFilterParams, UserWithTasksSchema
 from database.models.idp import Idp
 from database.models.status import Status
 from database.models.task import Task
@@ -22,7 +22,7 @@ AllTasks = int
 
 class AbstractUserRepository(ABC):
     @abstractmethod
-    async def get_all(self, filters: UserFilterParams) -> list[GetUserSchema]:
+    async def get_all_with_tasks(self, filters: UserFilterParams) -> list[UserWithTasksSchema]:
         raise NotImplementedError
 
     @abstractmethod
@@ -48,16 +48,25 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def get_all(self, filters: UserFilterParams) -> list[GetUserSchema]:
+    async def get_all_with_tasks(self, filters: UserFilterParams) -> list[UserWithTasksSchema]:
         User.team_id = column_property(UserTeam.team_id, expire_on_flush=True)
-        query = select(User).join(UserTeam)
+        query = (
+            select(User)
+            .join(UserTeam)
+            .join(Idp, onclause=and_(Idp.user_id == User.id, Idp.year == filters.year))
+            .join(User.tasks, isouter=True)
+            .join(Status, onclause=Status.id == Task.status_id)
+            .options(
+                contains_eager(User.tasks, Task.status),
+            )
+        )
 
         if filters.team_id:
             query = query.filter(UserTeam.team_id == filters.team_id)
 
-        results = (await self._session.execute(query)).scalars().all()
+        results = (await self._session.execute(query)).scalars().unique().all()
 
-        return [GetUserSchema.model_validate(result) for result in results]
+        return [UserWithTasksSchema.model_validate(result) for result in results]
 
     async def create(self, user_data: CreateUserSchema) -> None:
         user = User(**user_data.model_dump())
@@ -66,7 +75,7 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
     async def count_completed_tasks_for_users(
         self, users: tuple[UUID, ...]
     ) -> Sequence[tuple[UUID, CompletedTasks, AllTasks]]:
-        completed_tasks = func.count(Task.id).filter(Status.slug == StatusSlugEnum.completed)
+        completed_tasks = func.count(Task.id).filter(Status.slug == TaskStatusSlugEnum.completed)
         all_tasks = func.count(Task.id)
 
         query = (

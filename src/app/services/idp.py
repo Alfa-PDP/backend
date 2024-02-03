@@ -5,7 +5,7 @@ from app.domain.user_progress import UserProgress
 from app.repositories.idp import AbstractIDPRepository
 from app.repositories.tasks import AbstractTaskRepository
 from app.repositories.users import AbstractUserRepository
-from app.schemas.idp import IDPCreateSchema, IDPFilter, IDPGetExtendedSchema
+from app.schemas.idp import IDPCreateSchema, IDPFilter, IDPGetExtendedSchema, IDPProgressSchema
 
 
 @dataclass
@@ -37,4 +37,12 @@ class IDPService:
             task_count=len(tasks),
             task_progress=UserProgress(tasks).progress,
             tasks=tasks,
+        )
+
+    async def get_progress(self, idp_id: UUID) -> IDPProgressSchema:
+        tasks = await self._tasks_repository.get_all_by_idp_id_with_status(idp_id)
+        user_progress = UserProgress(tasks)
+        return IDPProgressSchema(
+            task_count=user_progress.task_count,
+            task_progress=user_progress.progress,
         )

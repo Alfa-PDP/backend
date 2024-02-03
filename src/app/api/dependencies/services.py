@@ -12,16 +12,16 @@ from app.api.dependencies.repositories import (
     UserRepositoryDep,
 )
 from app.repositories.goals import SqlAlchemyGoalRepository
+from app.services.api_status import APIStatusService
 from app.services.auth import AbstractAuthService, FakeAuthService
 from app.services.goals import GoalsService
 from app.services.idp import IDPService
-from app.services.status import StatusService
 from app.services.tasks import TasksService
 from app.services.users import UsersService
 
 
-def create_status_service(cache_client: CacheClientDep) -> StatusService:
-    return StatusService(cache_client)
+def create_api_status_service(cache_client: CacheClientDep) -> APIStatusService:
+    return APIStatusService(cache_client)
 
 
 def create_users_service(user_repository: UserRepositoryDep) -> UsersService:

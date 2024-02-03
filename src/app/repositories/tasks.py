@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.core import errors
-from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskGetSchema, TaskUpdateSchema
+from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskGetSchema, TaskUpdateSchema, TaskWithStatus
 from database.models.comment import Comment
 from database.models.task import Task
 
@@ -33,11 +33,15 @@ class AbstractTaskRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskGetSchema]:
+    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskWithStatus]:
         raise NotImplementedError
 
     @abstractmethod
     async def get_all_by_idp_id_with_status_and_comments(self, idp_id: UUID) -> list[TaskExtendedGetSchema]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def change_task_status(self, task_id: UUID, status_id: UUID) -> None:
         raise NotImplementedError
 
 
@@ -91,10 +95,10 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
             raise errors.TaskNotFoundError
         await self._session.commit()
 
-    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskGetSchema]:
+    async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskWithStatus]:
         query = select(Task).where(Task.idp_id == idp_id).options(joinedload(Task.status))
         results = (await self._session.execute(query)).scalars().all()
-        return [TaskGetSchema.model_validate(result) for result in results]
+        return [TaskWithStatus.model_validate(result) for result in results]
 
     async def get_all_by_idp_id_with_status_and_comments(self, idp_id: UUID) -> list[TaskExtendedGetSchema]:
         query = (
@@ -107,3 +111,8 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         )
         results = (await self._session.execute(query)).scalars().unique().all()
         return [TaskExtendedGetSchema.model_validate(result) for result in results]
+
+    async def change_task_status(self, task_id: UUID, status_id: UUID) -> None:
+        query = update(Task).where(Task.id == task_id).values(status_id=status_id)
+        await self._session.execute(query)
+        await self._session.commit()

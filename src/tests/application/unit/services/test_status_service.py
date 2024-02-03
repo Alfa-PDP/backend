@@ -5,7 +5,7 @@ from pydantic_core import ValidationError
 
 from app.clients.cache.abstract import CacheClientABC
 from app.schemas.api_status import APIStatusSchema
-from app.services.status import StatusService
+from app.services.api_status import APIStatusService
 
 
 @pytest.mark.asyncio
@@ -14,7 +14,7 @@ async def test_status_service(expected: APIStatusSchema) -> None:
     cache_mock = AsyncMock(spec=CacheClientABC)
     cache_mock.ping.return_value = True
 
-    service = StatusService(cache_mock)
+    service = APIStatusService(cache_mock)
     result = await service.get_api_status()
 
     cache_mock.ping.assert_called_with()
@@ -26,7 +26,7 @@ async def test_status_service_cache_fail() -> None:
     cache_mock = AsyncMock(spec=CacheClientABC)
     cache_mock.ping.return_value = 123
 
-    service = StatusService(cache_mock)
+    service = APIStatusService(cache_mock)
 
     with pytest.raises(ValidationError):
         await service.get_api_status()
