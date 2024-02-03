@@ -5,7 +5,7 @@ from app.schemas.api_status import APIStatusSchema
 
 
 @dataclass
-class StatusService:
+class APIStatusService:
     cache_client: CacheClientABC
 
     async def get_api_status(self) -> APIStatusSchema:

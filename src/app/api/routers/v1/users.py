@@ -26,9 +26,9 @@ logger = logging.getLogger().getChild("user-router")
 )
 async def get_users(users_service: UsersServiceDep, queries: UserQueryParamsDep) -> list[GetUserWithProgressSchema]:
     logger.debug(f"Getting users with {queries} params")
-    filters = UserFilterParams(team_id=queries.team_id)
+    filters = UserFilterParams(team_id=queries.team_id, year=queries.year)
     order = UserOrderParams(sort_by=queries.sort_by, order=queries.order)
-    return await users_service.get_users(filters, order)
+    return await users_service.get_users_with_progress(filters, order)
 
 
 @router.post(
@@ -72,8 +72,8 @@ async def get_user_tasks(
     status_code=status.HTTP_200_OK,
 )
 async def get_goals_for_user(
-        user_id: UUID,
-        goals_service: GoalsServiceDep,
+    user_id: UUID,
+    goals_service: GoalsServiceDep,
 ) -> GoalSchema:
     goals = await goals_service.get_goal_for_user(user_id)
     return goals

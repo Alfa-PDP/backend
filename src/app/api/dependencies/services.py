@@ -12,16 +12,16 @@ from app.api.dependencies.repositories import (
     TeamRepositoryDep,
     UserRepositoryDep,
 )
+from app.services.api_status import APIStatusService
 from app.services.auth import AbstractAuthService, FakeAuthService
 from app.services.goals import GoalsService
 from app.services.idp import IDPService
-from app.services.status import StatusService
 from app.services.tasks import TasksService
 from app.services.users import UsersService
 
 
-def create_status_service(cache_client: CacheClientDep) -> StatusService:
-    return StatusService(cache_client)
+def create_api_status_service(cache_client: CacheClientDep) -> APIStatusService:
+    return APIStatusService(cache_client)
 
 
 def create_users_service(user_repository: UserRepositoryDep) -> UsersService:
@@ -71,8 +71,8 @@ IDPServiceDep = Annotated[IDPService, Depends(get_idp_service)]
 
 
 def get_goals_service(
-        user_repository: UserRepositoryDep,
-        goals_repository: GoalRepositoryDep,
+    user_repository: UserRepositoryDep,
+    goals_repository: GoalRepositoryDep,
 ) -> GoalsService:
     return GoalsService(
         _goal_repository=goals_repository,

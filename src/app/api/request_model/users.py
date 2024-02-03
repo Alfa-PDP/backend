@@ -22,6 +22,7 @@ class UserQueryParams(BaseModel):
     sort_by: UserSortByEnum = UserSortByEnum.family_name
     order: UserOrderEnum = UserOrderEnum.asc
     team_id: UUID | None = None
+    year: int = Query(default=datetime.datetime.now().year)
 
 
 UserQueryParamsDep = Annotated[UserQueryParams, Depends()]

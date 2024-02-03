@@ -6,6 +6,7 @@ from fastapi import APIRouter, status
 from app.api.dependencies.repositories import TaskCommentRepositoryDep, TaskRepositoryDep
 from app.api.dependencies.services import TasksServiceDep
 from app.schemas.comment import CreateTaskCommentSchema, GetTaskCommentSchema
+from app.schemas.task_status import ChangeTaskStatus
 from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskUpdateSchema
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
@@ -88,3 +89,17 @@ async def create_task_comment(
 ) -> None:
     logger.debug(f"Creating comment {comment_data} for {task_id} task id")
     await task_comment_repository.create(task_id, comment_data)
+
+
+@router.patch(
+    "/{task_id}/status",
+    summary="Изменить статус задачи",
+    status_code=status.HTTP_201_CREATED,
+)
+async def change_task_status(
+    task_id: UUID,
+    task_status_data: ChangeTaskStatus,
+    tasks_service: TasksServiceDep,
+) -> None:
+    logger.debug(f"Changing status for task id {task_id}")
+    await tasks_service.change_task_status(task_id, task_status_data)

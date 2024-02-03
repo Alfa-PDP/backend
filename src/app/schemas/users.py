@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.team import TeamSchema
+from app.schemas.tasks import TaskWithStatus
 
 
 class GetUserSchema(BaseModel):
@@ -55,14 +55,7 @@ class UserOrderParams(BaseModel):
         return self.order == "desc"
 
 
-class UserWithTasksSchema(BaseModel):
+class UserWithTasksSchema(GetUserSchema):
     model_config = ConfigDict(from_attributes=True)
 
-    id: UUID
-    name: str
-    family_name: str
-    middle_name: str
-    position: str
-    avatar: str | None
-    team: TeamSchema | None
-    # tasks: list[TaskWithStatusSchema]
+    tasks: list[TaskWithStatus]

@@ -5,7 +5,7 @@ from fastapi import APIRouter, status
 
 from app.api.dependencies.services import IDPServiceDep
 from app.api.request_model.idp import IDPQueryParamsDep
-from app.schemas.idp import IDPCreateSchema, IDPFilter, IDPGetExtendedSchema
+from app.schemas.idp import IDPCreateSchema, IDPFilter, IDPGetExtendedSchema, IDPProgressSchema
 
 router = APIRouter(prefix="/idp", tags=["IDP"])
 
@@ -32,3 +32,14 @@ async def get_idp(user_id: UUID, idp_service: IDPServiceDep, query_params: IDPQu
     logger.debug(f"Get IDP for user {user_id}")
     filters = IDPFilter(year=query_params.year)
     return await idp_service.get_by_user_id(user_id, filters)
+
+
+@router.get(
+    "/{idp_id}/progress",
+    summary="Показать прогресс по ИПР сотрудника",
+    response_model=IDPProgressSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def get_idp_progress(idp_id: UUID, idp_service: IDPServiceDep) -> IDPProgressSchema:
+    logger.debug(f"Get IDP progress for idp id {idp_id}")
+    return await idp_service.get_progress(idp_id)
