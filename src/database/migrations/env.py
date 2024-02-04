@@ -1,9 +1,8 @@
-import asyncio
+import os
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 from database.base import BaseModel
 from database.config import PostgresqlConfig
@@ -12,7 +11,8 @@ db_config = PostgresqlConfig()
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", db_config.database_url)
+if not os.getenv("MIGRATION_TEST"):
+    config.set_main_option("sqlalchemy.url", db_config.database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

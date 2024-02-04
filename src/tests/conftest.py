@@ -1,8 +1,8 @@
-from typing import AsyncGenerator, Any
+from typing import Any, AsyncGenerator
 
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.api.dependencies.configs import get_main_config
 from database.models.declarative_base import BaseModel
