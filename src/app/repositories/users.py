@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -28,6 +29,10 @@ class AbstractUserRepository(ABC):
 
     @abstractmethod
     async def get_by_id(self, user_id: UUID) -> GetUserSchema:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_first_user(self) -> GetUserSchema:
         raise NotImplementedError
 
 
@@ -68,3 +73,8 @@ class SQLAlchemyUserRepository(AbstractUserRepository):
             raise errors.UserNotFoundError
 
         return GetUserSchema.model_validate(result)
+
+    async def get_first_user(self) -> Optional[User]:
+        query = select(User).limit(1)
+        result = await self._session.execute(query)
+        return result.scalars().first()
