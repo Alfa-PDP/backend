@@ -64,6 +64,8 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
             .options(
                 joinedload(Task.status),
                 joinedload(Task.comments).joinedload(Comment.user),
+                joinedload(Task.task_type),
+                joinedload(Task.importance),
             )
         )
 

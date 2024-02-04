@@ -88,7 +88,6 @@ status_ids = [
     UUID("c19fbd26-c9f5-40a4-b897-0237670fd6e7"),
 ]
 
-
 team_ids = [
     UUID("52b39186-47bd-4ada-b144-b55ea3744dbf"),
     UUID("e5ea3c39-0310-4217-8bad-3807bb959a9b"),
@@ -98,7 +97,6 @@ leader_ids = [
     user_ids[0],
     user_ids[5],
 ]
-
 
 task_ids = [
     UUID("09018dc5-a11d-470a-9b02-2a880f9200af"),
@@ -133,7 +131,6 @@ task_ids = [
     UUID("c1325b0c-f775-4d8f-b4d1-45748ccf0023"),
 ]
 
-
 task_dates = [
     (date(2024, 1, 1), date(2024, 1, 31)),
     (date(2024, 2, 1), date(2024, 5, 31)),
@@ -145,6 +142,18 @@ task_dates = [
     (date(2022, 2, 1), date(2022, 5, 31)),
     (date(2022, 6, 1), date(2022, 8, 31)),
     (date(2022, 8, 1), date(2022, 12, 31)),
+]
+
+task_type_ids = [
+    "7c028232-85a0-4cf0-bfec-89c75aed56d4",
+    "577c5aaa-e775-4b16-a899-e3c5f0655189",
+    "09367b3c-769d-4934-8e99-f087841cd1b0",
+]
+
+task_importance_ids = [
+    "b0fbf6ce-8837-4936-af27-344bc71f3551",
+    "96acc519-7be2-4ec8-90e3-337968d51870",
+    "e58f28d6-f37d-43ee-a5b2-0c0b7cd3f6d5",
 ]
 
 goal_ids = [

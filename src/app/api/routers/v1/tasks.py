@@ -3,11 +3,22 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
-from app.api.dependencies.repositories import TaskCommentRepositoryDep, TaskRepositoryDep, TaskStatusRepositoryDep
+from app.api.dependencies.repositories import (
+    TaskAdditionsRepositoryDep,
+    TaskCommentRepositoryDep,
+    TaskRepositoryDep,
+    TaskStatusRepositoryDep,
+)
 from app.api.dependencies.services import TasksServiceDep
 from app.schemas.comment import CreateTaskCommentSchema, GetTaskCommentSchema
 from app.schemas.task_status import ChangeTaskStatus, TaskStatusSchema
-from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskUpdateSchema
+from app.schemas.tasks import (
+    TaskCreateSchema,
+    TaskExtendedGetSchema,
+    TaskImportanceSchema,
+    TaskTypeSchema,
+    TaskUpdateSchema,
+)
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -25,6 +36,32 @@ async def get_status_list(
 ) -> list[TaskStatusSchema]:
     status_list = await status_repository.get_status_list()
     return status_list
+
+
+@router.get(
+    "/task_types",
+    summary="Получить список типов задач",
+    status_code=status.HTTP_200_OK,
+    response_model=list[TaskTypeSchema],
+)
+async def get_task_types_list(
+        task_types_repository: TaskAdditionsRepositoryDep,
+) -> list[TaskTypeSchema]:
+    types_list = await task_types_repository.get_task_types_list()
+    return types_list
+
+
+@router.get(
+    "/task_importance",
+    summary="Получить список важности задач",
+    status_code=status.HTTP_200_OK,
+    response_model=list[TaskImportanceSchema],
+)
+async def get_task_importance_list(
+        task_importance_repository: TaskAdditionsRepositoryDep,
+) -> list[TaskImportanceSchema]:
+    importance_list = await task_importance_repository.get_task_importance_list()
+    return importance_list
 
 
 @router.get(
