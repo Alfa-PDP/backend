@@ -30,17 +30,55 @@ idp_dates = [
 
 user_ids = [
     UUID("4a00f723-f391-4038-8d44-b48240c7e49e"),
-    UUID("fde4c6dd-dd05-4295-b647-d1741d038865"),
     UUID("1d5b1f66-5534-458e-bf71-e11a9cf78cbc"),
     UUID("58158aad-9782-4752-9ad8-303c35e6a08f"),
     UUID("c19fbd26-c9f5-40a4-b897-0237670fd6e1"),
-    UUID("c0390588-4e38-4c63-a216-6c6a568ce6a4"),
+    UUID("c0390588-4e38-4c63-a216-6c6a568ce6a4"),  # ID руководителя
     UUID("27db4cc1-8250-4510-80f4-74071ffba478"),
+    UUID("fde4c6dd-dd05-4295-b647-d1741d038865"),  # ID сотрудника
     UUID("4baedc9d-dce8-4d18-b1c1-01a1f210ad5b"),
     UUID("5ff0565c-b5c8-4aaf-a7d6-d954a414e1bc"),
     UUID("0c0a9afb-b7b9-4271-a433-a6507166cda7"),
 ]
 
+user_telegrams = [
+    "@employeeAlfa",
+    "@Director",
+    "@awidqwp",
+    "@11dADcos",
+    "@applejuice",
+    "@golfclub",
+    "@F8F5F4",
+    "@telegramME",
+    "@daniii11",
+    "@Alfa",
+]
+
+user_phone_numbers = [
+    "+79994443311",
+    "+79412555212",
+    "+79959592881",
+    "+79550100221",
+    "+79000000000",
+    "+79932132121",
+    "+79916263346",
+    "+79966666666",
+    "+79999999999",
+    "+79911958128",
+]
+
+user_emails = [
+    "waj-okeseva64@yandex.ru",
+    "zebali_bagi74@yandex.ru",
+    "dagu_fucehe58@yandex.ru",
+    "yeyofe-goru89@yandex.ru",
+    "gut_etegida18@yandex.ru",
+    "gacec_okapo93@yandex.ru",
+    "kimixay-ezo49@yandex.ru",
+    "wupan_ihuce63@yandex.ru",
+    "yab-awobatu37@yandex.ru",
+    "namer_ikida54@yandex.ru",
+]
 
 status_ids = [
     UUID("0e4aa0c9-b20c-4556-ad00-bf73e0fdf11a"),

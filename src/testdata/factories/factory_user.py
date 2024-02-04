@@ -1,5 +1,5 @@
 from database.models.user import User
-from testdata.factories.common_data import user_ids
+from testdata.factories.common_data import user_emails, user_ids, user_phone_numbers, user_telegrams
 from testdata.factories.factory_base import BaseSQLAlchemyFactory
 
 
@@ -26,4 +26,9 @@ class UserFactory(BaseSQLAlchemyFactory[User]):
 
     @classmethod
     def build_all(cls) -> list[User]:
-        return [cls.build(id=user_id) for user_id in user_ids]
+        return [
+            cls.build(id=user_id, telegram=user_telegram, phone_number=user_phone_number, email=user_email)
+            for user_id, user_telegram, user_phone_number, user_email in zip(
+                user_ids, user_telegrams, user_phone_numbers, user_emails
+            )
+        ]
