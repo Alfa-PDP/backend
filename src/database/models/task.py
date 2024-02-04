@@ -7,6 +7,8 @@ from sqlalchemy.orm import Mapped, relationship
 from database.models.declarative_base import BaseModel, Column
 from database.models.mixins import IdMixin, TsMixinCreated, TsMixinUpdated
 from database.models.status import Status
+from database.models.task_importance import Importance
+from database.models.task_type import Type
 
 if TYPE_CHECKING:
     from database.models.comment import Comment
@@ -18,10 +20,16 @@ class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
 
     name: Mapped[str] = Column(String(100), nullable=False, comment="Наименование задачи")
     description: Mapped[str] = Column(String(1000), nullable=False, comment="Подробности задачи")
-    task_type: Mapped[str] = Column(String(20), nullable=False, comment="Тип задачи")
+    task_type_id: Mapped[UUID] = Column(
+        ForeignKey("task_type.id", name="task_type", ondelete="RESTRICT", onupdate="RESTRICT"),
+        comment="Тип задачи",
+    )
     start_time: Mapped[date] = Column(Date, nullable=False, comment="Дата начала")
     end_time: Mapped[date] = Column(Date, nullable=False, comment="Дата окончания")
-    importance: Mapped[str] = Column(String(10), nullable=False, comment="Значимость задачи")
+    importance_id: Mapped[UUID] = Column(
+        ForeignKey("task_importance.id", name="task_importance", ondelete="RESTRICT", onupdate="RESTRICT"),
+        comment="Значимость задачи",
+    )
     idp_id: Mapped[UUID] = Column(
         ForeignKey("idp.id", name="task_idp_id", ondelete="RESTRICT", onupdate="RESTRICT"),
         comment="Идентификатор ИПР задачи",
@@ -31,6 +39,8 @@ class Task(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
         comment="Статус выполнения задачи",
     )
 
+    task_type: Mapped["Type"] = relationship()
+    importance: Mapped["Importance"] = relationship()
     status: Mapped["Status"] = relationship()
     comments: Mapped[list["Comment"]] = relationship()
 

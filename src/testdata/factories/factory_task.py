@@ -3,7 +3,7 @@ from uuid import UUID
 
 from app.schemas.tasks import ImportanceType, TaskType
 from database.models.task import Task
-from testdata.factories.common_data import idp_ids, status_ids, task_dates, task_ids
+from testdata.factories.common_data import idp_ids, status_ids, task_dates, task_ids, task_importance_ids, task_type_ids
 from testdata.factories.factory_base import BaseSQLAlchemyFactory
 
 
@@ -29,6 +29,14 @@ class TaskFactory(BaseSQLAlchemyFactory[Task]):
         return cls.__faker__.random.choice(status_ids)
 
     @classmethod
+    def task_type_id(cls) -> UUID:
+        return cls.__faker__.random.choice(task_type_ids)
+
+    @classmethod
+    def importance_id(cls) -> UUID:
+        return cls.__faker__.random.choice(task_importance_ids)
+
+    @classmethod
     def build_all(cls) -> list[Task]:
         factor = int(len(task_ids) / 10)
 
@@ -39,5 +47,9 @@ class TaskFactory(BaseSQLAlchemyFactory[Task]):
                 start_time=dates[0],
                 end_time=dates[1],
             )
-            for task_id, idp_id, dates in zip_longest(task_ids, idp_ids * factor, task_dates * factor)
+            for task_id, idp_id, dates in zip_longest(
+                task_ids,
+                idp_ids * factor,
+                task_dates * factor,
+            )
         ]
