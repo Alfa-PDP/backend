@@ -11,9 +11,9 @@ FACTORIES = [
     factories.UserTeamFactory,
     factories.TaskStatusFactory,
     factories.IDPFactory,
-    factories.TaskFactory,
     factories.TaskTypeFactory,
     factories.TaskImportanceFactory,
+    factories.TaskFactory,
     factories.TaskCommentFactory,
     factories.GoalFactory,
 ]
