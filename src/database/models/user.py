@@ -19,6 +19,9 @@ class User(BaseModel, IdMixin, TsMixinCreated, TsMixinUpdated):
     middle_name: Mapped[str] = Column(String(50), nullable=False, comment="Отчество пользователя")
     position: Mapped[str] = Column(String(100), nullable=False, comment="Должность пользователя")
     avatar: Mapped[str] = Column(Text, nullable=True, comment="Аватар пользователя")
+    email: Mapped[str] = Column(String(100), nullable=True, comment="Электронная почта пользователя")
+    phone_number: Mapped[str] = Column(String(100), nullable=True, comment="Номер телефона пользователя")
+    telegram: Mapped[str] = Column(String(100), nullable=True, comment="Telegram пользователя")
 
     idp: Mapped["Idp"] = relationship()
     tasks: Mapped[list["Task"]] = relationship(secondary="join(Idp, Task, Idp.id == Task.idp_id)")
