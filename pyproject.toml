@@ -47,6 +47,7 @@ line-length = 120
 extend-exclude = [
     "src/database/migrations/*.py",
     "src/database/migrations/versions/*.py",
+    "src/app/schemas/task_status.py",
 ]
 force-exclude = true
 
