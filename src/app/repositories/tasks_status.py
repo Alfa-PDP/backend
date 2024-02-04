@@ -22,6 +22,10 @@ class AbstractTaskStatusRepository(ABC):
     async def get_by_description(self, description: TaskStatusDescriptionEnum) -> TaskStatusSchema:
         raise NotImplementedError
 
+    @abstractmethod
+    async def get_status_list(self) -> TaskStatusSchema:
+        raise NotImplementedError
+
 
 class SQLAlchemyTaskStatusRepository(AbstractTaskStatusRepository):
     def __init__(self, session: AsyncSession) -> None:
@@ -51,3 +55,8 @@ class SQLAlchemyTaskStatusRepository(AbstractTaskStatusRepository):
         if not task_status:
             raise errors.TaskStatusNotFoundError
         return TaskStatusSchema.model_validate(task_status)
+
+    async def get_status_list(self) -> list[TaskStatusSchema]:
+        query = select(Status)
+        result = await self._session.execute(query)
+        return [TaskStatusSchema.model_validate(status) for status in result.scalars()]

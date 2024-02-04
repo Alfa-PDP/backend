@@ -3,15 +3,28 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
-from app.api.dependencies.repositories import TaskCommentRepositoryDep, TaskRepositoryDep
+from app.api.dependencies.repositories import TaskCommentRepositoryDep, TaskRepositoryDep, TaskStatusRepositoryDep
 from app.api.dependencies.services import TasksServiceDep
 from app.schemas.comment import CreateTaskCommentSchema, GetTaskCommentSchema
-from app.schemas.task_status import ChangeTaskStatus
+from app.schemas.task_status import ChangeTaskStatus, TaskStatusSchema
 from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskUpdateSchema
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 logger = logging.getLogger().getChild("task-router")
+
+
+@router.get(
+    "/status",
+    summary="Получить список статусов для задач",
+    status_code=status.HTTP_200_OK,
+    response_model=list[TaskStatusSchema],
+)
+async def get_status_list(
+        status_repository: TaskStatusRepositoryDep,
+) -> list[TaskStatusSchema]:
+    status_list = await status_repository.get_status_list()
+    return status_list
 
 
 @router.get(

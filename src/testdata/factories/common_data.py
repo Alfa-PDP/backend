@@ -84,6 +84,8 @@ status_ids = [
     UUID("0e4aa0c9-b20c-4556-ad00-bf73e0fdf11a"),
     UUID("c11c2301-5570-4bc2-b7aa-ee0b267db522"),
     UUID("8301281d-828f-4729-a3c7-f5ba3e5121ee"),
+    UUID("e5ea3c39-0310-4217-8bad-3807bb959a9b"),
+    UUID("c19fbd26-c9f5-40a4-b897-0237670fd6e7"),
 ]
 
 
