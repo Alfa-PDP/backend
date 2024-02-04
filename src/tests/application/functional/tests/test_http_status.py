@@ -41,7 +41,7 @@ async def test_user_with_goals(db_session, api_client: TestClient):
         family_name="Family",
         middle_name="Middle",
         position="SEO",
-        avatar="https://cdn0.iconfinder.com/data/icons/user-pictures/100/malecostume-512.png"
+        avatar="https://cdn0.iconfinder.com/data/icons/user-pictures/100/malecostume-512.png",
     )
 
     # response = api_client.post("/api/v1/users", json=user_data.model_dump())
@@ -95,6 +95,7 @@ async def test_user_with_goals(db_session, api_client: TestClient):
 
     return user
 
+
 @pytest.mark.parametrize(
     ("method", "route", "params", "json", "expected_status"),
     [
@@ -102,8 +103,9 @@ async def test_user_with_goals(db_session, api_client: TestClient):
         ("GET", "/api/v1/users/me", None, None, HTTPStatus.NOT_FOUND),
     ],
 )
-def test_users_endpoints(api_client: TestClient, method: str, route: str, params: Any, json: Any,
-                         expected_status: int) -> None:
+def test_users_endpoints(
+        api_client: TestClient, method: str, route: str, params: Any, json: Any, expected_status: int
+) -> None:
     response = api_client.request(method=method, url=route, json=json, params=params)
     assert response.status_code == expected_status
 
@@ -121,7 +123,7 @@ async def test_get_goals_for_user(db_session, api_client: TestClient, test_user_
     user_id = str((await test_user_with_goals).id)
     response = api_client.get(f"/api/v1/users/{user_id}/goals")
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'Not Found'}
+    assert response.json() == {"detail": "Not Found"}
 
 
 @pytest.mark.asyncio
@@ -134,7 +136,7 @@ async def test_create_goal(api_client: TestClient, db_session, test_user_with_go
         employee_side_minus="Test Employee Side Minuses",
     )
     data_dict = goal_data.model_dump()
-    data_dict['user_id'] = str(data_dict['user_id'])
+    data_dict["user_id"] = str(data_dict["user_id"])
 
     response = api_client.post(f"/api/v1/goals", json=data_dict)
     assert response.status_code == HTTPStatus.CREATED
