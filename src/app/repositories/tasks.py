@@ -5,6 +5,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from app.api.middlewares.main import logger
 from app.core import errors
 from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskGetSchema, TaskUpdateSchema, TaskWithStatus
 from database.models.comment import Comment
@@ -91,8 +92,8 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
                 description=obj_in.description,
                 start_time=obj_in.start_time,
                 end_time=obj_in.end_time,
-                task_type_id=obj_in.task_type_id,  # Добавлено
-                importance_id=obj_in.importance_id,  # Добавлено
+                task_type_id=obj_in.task_type_id,
+                importance_id=obj_in.importance_id
             )
             .returning(Task)
         )
@@ -103,10 +104,19 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         return TaskGetSchema.model_validate(result)
 
     async def delete(self, obj_id: UUID) -> None:
-        query = delete(Task).where(Task.id == obj_id).returning(Task)
-        result = (await self._session.execute(query)).scalars().first()
-        if not result:
+        comments_query = delete(Comment).where(Comment.task_id == obj_id).returning(Comment)
+        comments_result = (await self._session.execute(comments_query)).scalars().all()
+
+        task_query = delete(Task).where(Task.id == obj_id).returning(Task)
+        task_result = (await self._session.execute(task_query)).scalars().first()
+
+        if not task_result:
             raise errors.TaskNotFoundError
+
+        if comments_result:
+            for comment in comments_result:
+                logger.debug(f"Deleted comment: {comment}")
+
         await self._session.commit()
 
     async def get_all_by_idp_id_with_status(self, idp_id: UUID) -> list[TaskWithStatus]:
