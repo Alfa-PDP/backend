@@ -6,6 +6,16 @@ from app.core import errors
 
 
 async def application_handler(_: Request, exception: errors.ApplicationError) -> JSONResponse:
+    """
+    Обработчик исключений приложения.
+
+    Аргументы:
+        - _: Заглушка для запроса (Request).
+        - exception (errors.ApplicationError): Исключение приложения.
+
+    Возвращает:
+        - JSONResponse: Ответ в формате JSON с соответствующим статус-кодом.
+    """
     content = {
         "error_code": exception.error_code,
         "error_message": exception.error_message,

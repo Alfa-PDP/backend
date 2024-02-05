@@ -8,6 +8,12 @@ from app.core.config import MainConfig
 
 @lru_cache
 def get_main_config() -> MainConfig:
+    """
+    Получает экземпляр главной конфигурации.
+
+    Возвращает:
+        - MainConfig: Экземпляр главной конфигурации.
+    """
     return MainConfig()
 
 

@@ -21,5 +21,14 @@ StatusServiceDep = Annotated[APIStatusService, Depends(create_api_status_service
     status_code=status.HTTP_200_OK,
 )
 async def _get_api_status(status_service: StatusServiceDep) -> APIStatusSchema:
+    """
+    Получение статуса API.
+
+    Args:
+        - status_service (StatusServiceDep): Сервис для работы со статусом API.
+
+    Returns:
+        - APIStatusSchema: Информация о статусе API.
+    """
     logger.debug("Get api status")
     return await status_service.get_api_status()

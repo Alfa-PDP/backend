@@ -18,6 +18,13 @@ logger = logging.getLogger().getChild("idp-router")
     status_code=status.HTTP_201_CREATED,
 )
 async def create_idp(idp_service: IDPServiceDep, idp_data: IDPCreateSchema) -> None:
+    """
+    Создание ИПР для сотрудника.
+
+    Args:
+        - idp_service (IDPServiceDep): Сервис для работы с ИПР.
+        - idp_data (IDPCreateSchema): Данные для создания ИПР.
+    """
     logger.debug(f"Create IDP with {idp_data}")
     await idp_service.create(idp_data)
 
@@ -29,6 +36,17 @@ async def create_idp(idp_service: IDPServiceDep, idp_data: IDPCreateSchema) -> N
     status_code=status.HTTP_200_OK,
 )
 async def get_idp(user_id: UUID, idp_service: IDPServiceDep, query_params: IDPQueryParamsDep) -> IDPGetExtendedSchema:
+    """
+    Получение информации по ИПР для сотрудника.
+
+    Args:
+        - user_id (UUID): Идентификатор сотрудника.
+        - idp_service (IDPServiceDep): Сервис для работы с ИПР.
+        - query_params (IDPQueryParamsDep): Параметры запроса.
+
+    Returns:
+        - IDPGetExtendedSchema: Расширенная информация по ИПР.
+    """
     logger.debug(f"Get IDP for user {user_id}")
     filters = IDPFilter(year=query_params.year)
     return await idp_service.get_by_user_id(user_id, filters)
@@ -41,5 +59,15 @@ async def get_idp(user_id: UUID, idp_service: IDPServiceDep, query_params: IDPQu
     status_code=status.HTTP_200_OK,
 )
 async def get_idp_progress(idp_id: UUID, idp_service: IDPServiceDep) -> IDPProgressSchema:
+    """
+    Получение информации о прогрессе по ИПР для сотрудника.
+
+    Args:
+        - idp_id (UUID): Идентификатор ИПР.
+        - idp_service (IDPServiceDep): Сервис для работы с ИПР.
+
+    Returns:
+        - IDPProgressSchema: Информация о прогрессе по ИПР.
+    """
     logger.debug(f"Get IDP progress for idp id {idp_id}")
     return await idp_service.get_progress(idp_id)

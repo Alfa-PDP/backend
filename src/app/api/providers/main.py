@@ -11,6 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 def setup_providers(app: FastAPI, config: MainConfig) -> None:
+    """
+    Настройка провайдеров для приложения FastAPI.
+
+    Аргументы:
+        - app (FastAPI): Экземпляр FastAPI.
+        - config (MainConfig): Конфигурация приложения.
+    """
     redis_provider = RedisProvider(app=app, host=config.redis.host, port=config.redis.port)
     redis_provider.register_events()
     logger.info(f"Setup Redis Provider. host:port: {config.redis.host}:{config.redis.port}")

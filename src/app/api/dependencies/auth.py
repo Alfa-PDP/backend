@@ -26,6 +26,22 @@ async def authorize_user(
     config: MainConfigDep,
     access_token: str | None = Security(api_key_header),
 ) -> AuthData:
+    """
+    Авторизует пользователя на основе предоставленного токена доступа.
+
+    Аргументы:
+        - auth_service: Экземпляр AuthServiceDep, используемый для авторизации пользователя.
+        - config: Экземпляр MainConfigDep, предоставляющий настройки конфигурации.
+        - access_token: Необязательная строка, токен доступа, извлеченный из заголовка Authorization.
+
+    Исключения:
+        - ForbiddenError: Если токен доступа не предоставлен.
+        - TokenDecodeError: Если есть проблема с декодированием предоставленного токена JWT.
+        - TokenExpiredError: Если токен JWT истек.
+
+    Возвращает:
+        - AuthData: Экземпляр AuthData, содержащий данные авторизации пользователя.
+    """
     if not access_token:
         raise errors.ForbiddenError
 
@@ -37,6 +53,20 @@ async def authorize_user(
 
 
 def _validate_token(token: str, config: AuthConfig) -> PayloadDict:
+    """
+    Проверяет предоставленный токен JWT.
+
+    Аргументы:
+        - token: Токен JWT, извлеченный из заголовка Authorization.
+        - config: Экземпляр AuthConfig, предоставляющий настройки JWT.
+
+    Исключения:
+        - TokenDecodeError: Если есть проблема с декодированием предоставленного токена JWT.
+        - TokenExpiredError: Если токен JWT истек.
+
+    Возвращает:
+        - PayloadDict: Словарь, содержащий раскодированный полезный нагрузки токена JWT.
+    """
     try:
         payload: PayloadDict = jwt.decode(token, config.jwt_secret_key, algorithms=[config.encode_algorithm])
     except (
@@ -57,4 +87,5 @@ def _validate_token(token: str, config: AuthConfig) -> PayloadDict:
     return payload
 
 
+# Зависимость для авторизации пользователя
 AuthorizeUserDep = Annotated[AuthData, Depends(authorize_user)]

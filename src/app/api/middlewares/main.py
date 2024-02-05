@@ -9,6 +9,15 @@ logger = logging.getLogger(__name__)
 
 
 def setup_middleware(app: FastAPI) -> None:
+    """
+    Настройка промежуточных слоев для FastAPI приложения.
+
+    Аргументы:
+        - app (FastAPI): FastAPI приложение.
+
+    Возвращает:
+        - None
+    """
     app.add_middleware(
         CORSMiddleware,
         allow_origin_regex=".*",

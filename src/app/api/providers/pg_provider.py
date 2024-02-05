@@ -7,6 +7,17 @@ from app.core.config import PostgresqlConfig
 
 class PostgresqlProvider(StartUpProviderMixin, ShutDownProviderMixin):
     def __init__(self, app: FastAPI, config: PostgresqlConfig):
+        """
+        Провайдер для работы с PostgreSQL базой данных в асинхронном режиме.
+
+        Атрибуты:
+            - app (FastAPI): Экземпляр FastAPI.
+            - config (PostgresqlConfig): Конфигурация PostgreSQL.
+
+        Методы:
+            - startup: Обработка события startup - инициализация соединения с базой данных.
+            - shutdown: Обработка события shutdown - закрытие соединения с базой данных.
+        """
         self.app = app
         self.config = config
 
