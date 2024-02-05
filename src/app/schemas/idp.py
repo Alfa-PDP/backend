@@ -35,6 +35,9 @@ class IDPGetExtendedSchema(IDPGetSchema):
     middle_name: str
     position: str
     avatar: str | None
+    email: str | None
+    phone_number: str | None
+    telegram: str | None
     team_id: UUID
     task_count: int
     task_progress: int
