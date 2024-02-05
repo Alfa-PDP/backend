@@ -83,7 +83,19 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         return TaskGetSchema.model_validate(db_obj)
 
     async def update(self, obj_in: TaskUpdateSchema) -> TaskGetSchema:
-        query = update(Task).where(Task.id == obj_in.id).values(**obj_in.model_dump()).returning(Task)
+        query = (
+            update(Task)
+            .where(Task.id == obj_in.id)
+            .values(
+                name=obj_in.name,
+                description=obj_in.description,
+                start_time=obj_in.start_time,
+                end_time=obj_in.end_time,
+                task_type_id=obj_in.task_type_id,  # Добавлено
+                importance_id=obj_in.importance_id,  # Добавлено
+            )
+            .returning(Task)
+        )
         result = (await self._session.execute(query)).scalars().first()
         await self._session.commit()
         if not result:
@@ -110,7 +122,7 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
                 joinedload(Task.status),
                 joinedload(Task.comments).joinedload(Comment.user),
                 joinedload(Task.task_type),
-                joinedload(Task.importance)
+                joinedload(Task.importance),
             )
         )
         results = (await self._session.execute(query)).scalars().unique().all()
