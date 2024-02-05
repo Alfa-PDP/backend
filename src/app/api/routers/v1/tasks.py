@@ -34,6 +34,16 @@ logger = logging.getLogger().getChild("task-router")
 async def get_status_list(
         status_repository: TaskStatusRepositoryDep,
 ) -> list[TaskStatusSchema]:
+    """
+    Получение списка статусов для задач.
+
+    Args:
+        - status_repository (TaskStatusRepositoryDep): Репозиторий для работы со статусами задач.
+
+    Returns:
+        - List[TaskStatusSchema]: Список статусов задач.
+    """
+    logger.debug("Getting Task status list")
     status_list = await status_repository.get_status_list()
     return status_list
 
@@ -47,6 +57,16 @@ async def get_status_list(
 async def get_task_types_list(
         task_types_repository: TaskAdditionsRepositoryDep,
 ) -> list[TaskTypeSchema]:
+    """
+    Получение списка типов задач.
+
+    Args:
+        - task_types_repository (TaskAdditionsRepositoryDep): Репозиторий для работы с типами задач.
+
+    Returns:
+        - List[TaskTypeSchema]: Список типов задач.
+    """
+    logger.debug("Getting Task types list")
     types_list = await task_types_repository.get_task_types_list()
     return types_list
 
@@ -60,6 +80,17 @@ async def get_task_types_list(
 async def get_task_importance_list(
         task_importance_repository: TaskAdditionsRepositoryDep,
 ) -> list[TaskImportanceSchema]:
+    """
+    Получение списка уровней важности задач.
+
+    Args:
+        - task_importance_repository (TaskAdditionsRepositoryDep): Репозиторий для работы с уровнями важности задач.
+
+    Returns:
+        - List[TaskImportanceSchema]: Список уровней важности задач.
+
+    """
+    logger.debug("Getting Task importance list")
     importance_list = await task_importance_repository.get_task_importance_list()
     return importance_list
 
@@ -71,6 +102,17 @@ async def get_task_importance_list(
     status_code=status.HTTP_200_OK,
 )
 async def _get_task(task_id: UUID, tasks_repository: TaskRepositoryDep) -> TaskExtendedGetSchema:
+    """
+    Получение расширенной информации о задаче по её идентификатору.
+
+    Args:
+        - task_id (UUID): Идентификатор задачи.
+        - tasks_repository (TaskRepositoryDep): Репозиторий для работы с задачами.
+
+    Returns:
+        - TaskExtendedGetSchema: Расширенная информация о задаче.
+
+    """
     logger.debug("Getting Task by id")
     return await tasks_repository.get_with_status_and_comments(obj_id=task_id)
 
@@ -85,6 +127,16 @@ async def _create_task(
     task_data: TaskCreateSchema,
     tasks_service: TasksServiceDep,
 ) -> TaskExtendedGetSchema:
+    """
+    Создание новой задачи.
+
+    Args:
+        - task_data (TaskCreateSchema): Данные для создания задачи.
+        - tasks_service (TasksServiceDep): Сервис для работы с задачами.
+
+    Returns:
+        - TaskExtendedGetSchema: Расширенная информация о созданной задаче.
+    """
     logger.debug("Create Task")
     return await tasks_service.create(task_data)
 
@@ -99,6 +151,16 @@ async def _update_task(
     task_data: TaskUpdateSchema,
     tasks_service: TasksServiceDep,
 ) -> TaskExtendedGetSchema:
+    """
+    Обновление реквизитов задачи.
+
+    Args:
+        - task_data (TaskUpdateSchema): Данные для обновления задачи.
+        - tasks_service (TasksServiceDep): Сервис для работы с задачами.
+
+    Returns:
+        - TaskExtendedGetSchema: Расширенная информация об обновлённой задаче.
+    """
     logger.debug("Update Task")
     return await tasks_service.update(task_data)
 
@@ -112,6 +174,13 @@ async def _delete_task(
     task_id: UUID,
     tasks_repository: TaskRepositoryDep,
 ) -> None:
+    """
+    Удаление задачи.
+
+    Args:
+        - task_id (UUID): Идентификатор задачи.
+        - tasks_repository (TaskRepositoryDep): Репозиторий для работы с задачами.
+    """
     logger.debug("Delete Task")
     await tasks_repository.delete(task_id)
 
@@ -123,6 +192,16 @@ async def _delete_task(
     status_code=status.HTTP_200_OK,
 )
 async def get_task_comments(task_id: UUID, comment_repository: TaskCommentRepositoryDep) -> list[GetTaskCommentSchema]:
+    """
+    Получение списка комментариев к задаче.
+
+    Args:
+        - task_id (UUID): Идентификатор задачи.
+        - comment_repository (TaskCommentRepositoryDep): Репозиторий для работы с комментариями к задачам.
+
+    Returns:
+        - List[GetTaskCommentSchema]: Список комментариев к задаче.
+    """
     logger.debug(f"Getting task {task_id} comments")
     return await comment_repository.get_all_by_task_id(task_id)
 
@@ -137,6 +216,14 @@ async def create_task_comment(
     comment_data: CreateTaskCommentSchema,
     task_comment_repository: TaskCommentRepositoryDep,
 ) -> None:
+    """
+    Добавление комментария к задаче.
+
+    Args:
+        - task_id (UUID): Идентификатор задачи.
+        - comment_data (CreateTaskCommentSchema): Данные для создания комментария.
+        - task_comment_repository (TaskCommentRepositoryDep): Репозиторий для работы с комментариями к задачам.
+    """
     logger.debug(f"Creating comment {comment_data} for {task_id} task id")
     await task_comment_repository.create(task_id, comment_data)
 
@@ -151,5 +238,13 @@ async def change_task_status(
     task_status_data: ChangeTaskStatus,
     tasks_service: TasksServiceDep,
 ) -> None:
+    """
+    Изменение статуса задачи.
+
+    Args:
+        - task_id (UUID): Идентификатор задачи.
+        - task_status_data (ChangeTaskStatus): Данные для изменения статуса задачи.
+        - tasks_service (TasksServiceDep): Сервис для работы с задачами.
+    """
     logger.debug(f"Changing status for task id {task_id}")
     await tasks_service.change_task_status(task_id, task_status_data)

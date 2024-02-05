@@ -25,6 +25,16 @@ logger = logging.getLogger().getChild("user-router")
     status_code=status.HTTP_200_OK,
 )
 async def get_users(users_service: UsersServiceDep, queries: UserQueryParamsDep) -> list[GetUserWithProgressSchema]:
+    """
+    Получение списка сотрудников команды с заданными параметрами сортировки.
+
+    Args:
+        - users_service (UsersServiceDep): Сервис для работы с сотрудниками.
+        - queries (UserQueryParamsDep): Параметры запроса.
+
+    Returns:
+        - List[GetUserWithProgressSchema]: Список сотрудников.
+    """
     logger.debug(f"Getting users with {queries} params")
     filters = UserFilterParams(team_id=queries.team_id, year=queries.year)
     order = UserOrderParams(sort_by=queries.sort_by, order=queries.order)
@@ -37,6 +47,16 @@ async def get_users(users_service: UsersServiceDep, queries: UserQueryParamsDep)
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(user_data: CreateUserSchema, users_repository: UserRepositoryDep) -> None:
+    """
+    Добавление нового сотрудника.
+
+    Args:
+        - user_data (CreateUserSchema): Данные нового сотрудника.
+        - users_repository (UserRepositoryDep): Репозиторий для работы с сотрудниками.
+
+    Returns:
+        - None.
+    """
     logger.debug(f"Create user: {user_data}")
     return await users_repository.create(user_data)
 
@@ -48,6 +68,15 @@ async def create_user(user_data: CreateUserSchema, users_repository: UserReposit
     status_code=status.HTTP_200_OK,
 )
 async def get_user(auth_data: AuthorizeUserDep) -> AuthData:
+    """
+    Получение информации о текущем пользователе.
+
+    Args:
+        - auth_data (AuthorizeUserDep): Данные авторизованного пользователя.
+
+    Returns:
+        - AuthData: Информация о текущем пользователе.
+    """
     return auth_data
 
 
@@ -60,6 +89,17 @@ async def get_user(auth_data: AuthorizeUserDep) -> AuthData:
 async def get_user_tasks(
     user_id: UUID, query_param: UserTasksQueryParamsDep, tasks_service: TasksServiceDep
 ) -> list[TaskExtendedGetSchema]:
+    """
+    Получение задач для указанного сотрудника.
+
+    Args:
+        - user_id (UUID): Идентификатор сотрудника.
+        - query_param (UserTasksQueryParamsDep): Параметры запроса.
+        - tasks_service (TasksServiceDep): Сервис для работы с задачами.
+
+    Returns:
+        - List[TaskExtendedGetSchema]: Список задач с дополнительной информацией.
+    """
     logger.debug(f"Get user's {user_id} tasks.")
     filters = IDPFilter(year=query_param.year)
     return await tasks_service.get_all_by_user_id(user_id, filters)
@@ -75,5 +115,16 @@ async def get_goals_for_user(
     user_id: UUID,
     goals_service: GoalsServiceDep,
 ) -> GoalSchema:
+    """
+    Получение целей для указанного сотрудника.
+
+    Args:
+        - user_id (UUID): Идентификатор сотрудника.
+        - goals_service (GoalsServiceDep): Сервис для работы с целями.
+
+    Returns:
+        - GoalSchema: Информация о целях сотрудника.
+    """
+    logger.debug(f"Get user's {user_id} goals.")
     goals = await goals_service.get_goal_for_user(user_id)
     return goals

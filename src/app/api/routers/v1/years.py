@@ -16,5 +16,14 @@ logger = logging.getLogger().getChild("years-router")
     status_code=status.HTTP_200_OK,
 )
 async def get_years(idp_repositorty: IDPRepositoryDep) -> list[int]:
+    """
+    Получение списка годов по ИПР.
+
+    Args:
+        - idp_repository (IDPRepositoryDep): Репозиторий для работы с ИПР.
+
+    Returns:
+        - List[int]: Список годов.
+    """
     logger.debug("Get years")
     return await idp_repositorty.distinct_years()
