@@ -7,7 +7,13 @@ from sqlalchemy.orm import joinedload
 
 from app.api.middlewares.main import logger
 from app.core import errors
-from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskGetSchema, TaskUpdateSchema, TaskWithStatus
+from app.schemas.tasks import (
+    TaskCreateSchema,
+    TaskExtendedGetSchema,
+    TaskGetSchema,
+    TaskPartialUpdateSchema,
+    TaskWithStatus,
+)
 from database.models.comment import Comment
 from database.models.task import Task
 
@@ -26,7 +32,7 @@ class AbstractTaskRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def update(self, obj_in: TaskUpdateSchema) -> TaskGetSchema:
+    async def partial_update(self, task_id: UUID, obj_in: TaskPartialUpdateSchema) -> TaskGetSchema:
         raise NotImplementedError
 
     @abstractmethod
@@ -83,20 +89,8 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         await self._session.refresh(db_obj)
         return TaskGetSchema.model_validate(db_obj)
 
-    async def update(self, obj_in: TaskUpdateSchema) -> TaskGetSchema:
-        query = (
-            update(Task)
-            .where(Task.id == obj_in.id)
-            .values(
-                name=obj_in.name,
-                description=obj_in.description,
-                start_time=obj_in.start_time,
-                end_time=obj_in.end_time,
-                task_type_id=obj_in.task_type_id,
-                importance_id=obj_in.importance_id
-            )
-            .returning(Task)
-        )
+    async def partial_update(self, task_id: UUID, obj_in: TaskPartialUpdateSchema) -> TaskGetSchema:
+        query = update(Task).where(Task.id == task_id).values(**obj_in.model_dump(exclude_unset=True)).returning(Task)
         result = (await self._session.execute(query)).scalars().first()
         await self._session.commit()
         if not result:
