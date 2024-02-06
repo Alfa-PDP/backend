@@ -27,6 +27,7 @@ class IDPService:
             start_date=idp.start_date,
             end_date=idp.end_date,
             year=idp.year,
+            # TODO: Добавить логику подсчёта количества тасок за текущий ИПР. Сейчас счиает общее кол-во.
             user_id=user.id,
             name=user.name,
             family_name=user.family_name,
