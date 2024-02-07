@@ -17,6 +17,7 @@ from app.schemas.tasks import (
     TaskExtendedGetSchema,
     TaskImportanceSchema,
     TaskTypeSchema,
+    TaskUpdateSchema
 )
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
@@ -148,7 +149,7 @@ async def _create_task(
 )
 async def _update_task(
         task_id: UUID,
-        task_data: TaskPartialUpdateSchema,
+        task_data: TaskUpdateSchema,
     tasks_service: TasksServiceDep,
 ) -> TaskExtendedGetSchema:
     """
