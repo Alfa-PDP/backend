@@ -78,10 +78,13 @@ class TaskCreateSchema(TaskBase):
     status_id: UUID
 
 
-class TaskUpdateSchema(TaskBase):
-    id: UUID
-    task_type_id: UUID
-    importance_id: UUID
+class TaskUpdateSchema(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    start_time: date | None = None
+    end_time: date | None = None
+    task_type_id: UUID | None = None
+    importance_id: UUID | None = None
 
 
 class TaskWithStatus(TaskGetSchema):

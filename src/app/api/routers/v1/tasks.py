@@ -17,7 +17,7 @@ from app.schemas.tasks import (
     TaskExtendedGetSchema,
     TaskImportanceSchema,
     TaskTypeSchema,
-    TaskUpdateSchema,
+    TaskUpdateSchema
 )
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
@@ -141,14 +141,15 @@ async def _create_task(
     return await tasks_service.create(task_data)
 
 
-@router.put(
-    "",
+@router.patch(
+    "/{task_id}",
     summary="Редактирование реквизитов задачи",
     response_model=TaskExtendedGetSchema,
     status_code=status.HTTP_201_CREATED,
 )
 async def _update_task(
-    task_data: TaskUpdateSchema,
+        task_id: UUID,
+        task_data: TaskUpdateSchema,
     tasks_service: TasksServiceDep,
 ) -> TaskExtendedGetSchema:
     """
@@ -162,7 +163,7 @@ async def _update_task(
         - TaskExtendedGetSchema: Расширенная информация об обновлённой задаче.
     """
     logger.debug("Update Task")
-    return await tasks_service.update(task_data)
+    return await tasks_service.update(task_id, task_data)
 
 
 @router.delete(

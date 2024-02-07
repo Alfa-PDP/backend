@@ -26,8 +26,8 @@ class TasksService:
         task = await self._task_repository.create(data)
         return await self._task_repository.get_with_status_and_comments(task.id)
 
-    async def update(self, data: TaskUpdateSchema) -> TaskExtendedGetSchema:
-        task = await self._task_repository.update(data)
+    async def update(self, task_id: UUID, data: TaskUpdateSchema) -> TaskExtendedGetSchema:
+        task = await self._task_repository.update(task_id, data)
         return await self._task_repository.get_with_status_and_comments(task.id)
 
     async def change_task_status(self, task_id: UUID, task_status_data: ChangeTaskStatus) -> None:
