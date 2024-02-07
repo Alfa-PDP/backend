@@ -78,7 +78,7 @@ class TaskCreateSchema(TaskBase):
     status_id: UUID
 
 
-class TaskPartialUpdateSchema(BaseModel):
+class TaskUpdateSchema(BaseModel):
     name: str | None = None
     description: str | None = None
     start_time: date | None = None

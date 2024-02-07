@@ -6,7 +6,7 @@ from app.repositories.tasks import AbstractTaskRepository
 from app.repositories.tasks_status import AbstractTaskStatusRepository
 from app.schemas.idp import IDPFilter
 from app.schemas.task_status import ChangeTaskStatus
-from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskPartialUpdateSchema
+from app.schemas.tasks import TaskCreateSchema, TaskExtendedGetSchema, TaskUpdateSchema
 
 
 @dataclass
@@ -26,8 +26,8 @@ class TasksService:
         task = await self._task_repository.create(data)
         return await self._task_repository.get_with_status_and_comments(task.id)
 
-    async def partial_update(self, task_id: UUID, data: TaskPartialUpdateSchema) -> TaskExtendedGetSchema:
-        task = await self._task_repository.partial_update(task_id, data)
+    async def update(self, task_id: UUID, data: TaskUpdateSchema) -> TaskExtendedGetSchema:
+        task = await self._task_repository.update(task_id, data)
         return await self._task_repository.get_with_status_and_comments(task.id)
 
     async def change_task_status(self, task_id: UUID, task_status_data: ChangeTaskStatus) -> None:

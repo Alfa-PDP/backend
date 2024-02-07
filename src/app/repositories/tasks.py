@@ -11,7 +11,7 @@ from app.schemas.tasks import (
     TaskCreateSchema,
     TaskExtendedGetSchema,
     TaskGetSchema,
-    TaskPartialUpdateSchema,
+    TaskUpdateSchema,
     TaskWithStatus,
 )
 from database.models.comment import Comment
@@ -32,7 +32,7 @@ class AbstractTaskRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def partial_update(self, task_id: UUID, obj_in: TaskPartialUpdateSchema) -> TaskGetSchema:
+    async def update(self, task_id: UUID, obj_in: TaskUpdateSchema) -> TaskGetSchema:
         raise NotImplementedError
 
     @abstractmethod
@@ -89,7 +89,7 @@ class SQLAlchemyTaskRepository(AbstractTaskRepository):
         await self._session.refresh(db_obj)
         return TaskGetSchema.model_validate(db_obj)
 
-    async def partial_update(self, task_id: UUID, obj_in: TaskPartialUpdateSchema) -> TaskGetSchema:
+    async def update(self, task_id: UUID, obj_in: TaskUpdateSchema) -> TaskGetSchema:
         query = update(Task).where(Task.id == task_id).values(**obj_in.model_dump(exclude_unset=True)).returning(Task)
         result = (await self._session.execute(query)).scalars().first()
         await self._session.commit()
